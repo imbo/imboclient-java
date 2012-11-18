@@ -66,7 +66,7 @@ public class UrlTest {
 	}
 
 	/**
-	 * The url instance must return the complete url when used in a string context
+	 * The URL instance must return the complete url when used in a string context
 	 */
 	@Test
 	public void testReturnsTheCompleteUrlWhenUsedInAStringContext() {
