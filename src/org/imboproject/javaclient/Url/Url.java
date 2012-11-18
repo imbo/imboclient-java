@@ -80,7 +80,6 @@ abstract class Url implements UrlInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String getUrl() {
         String url = getResourceUrl();
         String queryString = getQueryString();
@@ -101,7 +100,6 @@ abstract class Url implements UrlInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String getUrlEncoded() {
         String url = getUrl();
         url = url.replace("&", "&amp;");
@@ -112,12 +110,13 @@ abstract class Url implements UrlInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String toString() {
         return getUrl();
     }
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public UrlInterface addQueryParam(String key, String value) {
         queryParams.add(key + "=" + TextUtils.urlEncode(value));
         
@@ -127,7 +126,6 @@ abstract class Url implements UrlInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public UrlInterface reset() {
         queryParams.clear();
         return this;
@@ -160,6 +158,11 @@ abstract class Url implements UrlInterface {
         return this;
     }
     
+    /**
+     * Retrieves the query string for this URL
+     * 
+     * @return Query string, as a String
+     */
     private String getQueryString() {
         if (queryParams.isEmpty()) {
             return "";

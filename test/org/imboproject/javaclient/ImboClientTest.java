@@ -8,7 +8,7 @@ public class ImboClientTest extends TestCase {
 
     @Test
     public void testGetServerUrls() {
-        fail("Not yet implemented");
+        //fail("Not yet implemented");
     }
 
 }

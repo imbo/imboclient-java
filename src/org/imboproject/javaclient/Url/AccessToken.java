@@ -45,7 +45,6 @@ public class AccessToken implements AccessTokenInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String generateToken(String url, String key) {
 
         Charset charset = Charset.forName("UTF-8");

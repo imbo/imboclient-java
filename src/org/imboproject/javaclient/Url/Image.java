@@ -61,7 +61,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface border(String color, int width, int height) {
         if (color == null) {
             color = "000000";
@@ -81,7 +80,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface border(String color) {
         return border(color, 1, 1);
     }
@@ -89,7 +87,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface compress(int quality) {
         addQueryParam("t[]", "compress:quality=" + quality);
         
@@ -99,7 +96,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface compress() {
         return compress(75);
     }
@@ -107,7 +103,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface convert(String type) {
         imageIdentifier = imageIdentifier.substring(0, 32) + "." + type;
         
@@ -117,7 +112,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface gif() {
         return convert("gif");
     }
@@ -125,7 +119,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface jpg() {
         return convert("jpg");
     }
@@ -133,7 +126,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface png() {
         return convert("png");
     }
@@ -141,7 +133,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface crop(int x, int y, int width, int height) {
         addQueryParam("t[]", ( 
                 "crop:" +
@@ -158,7 +149,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface flipHorizontally() {
         addQueryParam("t[]", "flipHorizontally");
         
@@ -168,7 +158,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface flipVertically() {
         addQueryParam("t[]", "flipVertically");
         
@@ -178,7 +167,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface resize(int width, int height) {
         ArrayList<String> params = new ArrayList<String>();
         
@@ -198,7 +186,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface maxSize(int maxWidth, int maxHeight) {
         ArrayList<String> params = new ArrayList<String>();
         
@@ -218,7 +205,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface rotate(double angle, String bg) {
         // Don't put decimals into the URL if we have no fractions
         String ang = Double.toString(angle);
@@ -237,7 +223,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface rotate(double angle) {
         return rotate(angle, "000000");
     }
@@ -245,7 +230,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface thumbnail(int width, int height, String fit) {
         if (width == 0) {
             width = 50;
@@ -267,7 +251,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface thumbnail() {
         return thumbnail(50, 50, null);
     }
@@ -275,7 +258,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface canvas(int width, int height, String mode, int x, int y, String bg) {
         ArrayList<String> params = new ArrayList<String>();
         params.add("width="  + width);
@@ -300,7 +282,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface canvas(int width, int height) {
         addQueryParam("t[]", "canvas:width=" + width + ",height=" + height);
         
@@ -310,7 +291,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface transpose() {
         addQueryParam("t[]", "transpose");
         
@@ -320,7 +300,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface transverse() {
         addQueryParam("t[]", "transverse");
         
@@ -330,7 +309,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public ImageInterface desaturate() {
         addQueryParam("t[]", "desaturate");
         
@@ -352,7 +330,6 @@ public class Image extends Url implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     protected String getResourceUrl() {
         String[] parts = {
             baseUrl,
