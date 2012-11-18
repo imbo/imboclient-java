@@ -6,9 +6,9 @@ import org.junit.Test;
 
 public class ImboClientTest extends TestCase {
 
-	@Test
-	public void testGetServerUrls() {
-		fail("Not yet implemented");
-	}
+    @Test
+    public void testGetServerUrls() {
+        fail("Not yet implemented");
+    }
 
 }

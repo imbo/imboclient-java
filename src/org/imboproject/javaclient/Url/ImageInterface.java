@@ -35,23 +35,23 @@ package org.imboproject.javaclient.Url;
  */
 public interface ImageInterface {
 
-	/**
-	 * Append a border transformation query parameter to the URL
-	 * 
-	 * @param color Color of the border, in hex format
-	 * @param width Width of the left and right sides of the border
-	 * @param height Height of the left and right sides of the border
-	 * @return ImageInterface
-	 */
+    /**
+     * Append a border transformation query parameter to the URL
+     * 
+     * @param color Color of the border, in hex format
+     * @param width Width of the left and right sides of the border
+     * @param height Height of the left and right sides of the border
+     * @return ImageInterface
+     */
     public ImageInterface border(String color, int width, int height);
     
     /**
-	 * Append a border transformation query parameter to the URL.
-	 * Border will be 1px in width and height. 
-	 * 
-	 * @param color Color of the border, in hex format. Defaults to '000000' (black)
-	 * @return ImageInterface
-	 */
+     * Append a border transformation query parameter to the URL.
+     * Border will be 1px in width and height. 
+     * 
+     * @param color Color of the border, in hex format. Defaults to '000000' (black)
+     * @return ImageInterface
+     */
     public ImageInterface border(String color);
 
     /**
@@ -217,11 +217,11 @@ public interface ImageInterface {
      * @return ImageInterface
      */
     public ImageInterface desaturate();
-	
+    
     /**
-	 * Returns the URL with query parameters added
-	 * 
-	 * @return Full URL with query parameters, as a String
-	 */
+     * Returns the URL with query parameters added
+     * 
+     * @return Full URL with query parameters, as a String
+     */
     public String getUrl();
 }
