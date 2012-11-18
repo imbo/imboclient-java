@@ -28,9 +28,9 @@
  */
 package org.imboproject.javaclient.Url;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
+
+import org.imboproject.javaclient.util.TextUtils;
 
 /**
  * Abstract Imbo URL for other implementations to extend
@@ -119,16 +119,7 @@ abstract class Url implements UrlInterface {
 
 	@Override
 	public UrlInterface addQueryParam(String key, String value) {
-
-		String encoded; 
-		try {
-			encoded = URLEncoder.encode(value, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// This really should not happen, but if it does, inject the value raw
-			encoded = value;
-		}
-		
-		queryParams.add(key + "=" + encoded);
+		queryParams.add(key + "=" + TextUtils.urlEncode(value));
 		
 		return this;
 	}
@@ -174,18 +165,7 @@ abstract class Url implements UrlInterface {
 			return "";
 		}
 		
-		StringBuilder sb = new StringBuilder();
-		boolean firstTime = true;
-		for (String queryParam : queryParams) {
-			if (firstTime) {
-				firstTime = false;
-			} else {
-				sb.append("&");
-			}
-			sb.append(queryParam);
-		}
-		
-		return sb.toString();
+		return TextUtils.join("&", queryParams);
 	}
 	
 	/**

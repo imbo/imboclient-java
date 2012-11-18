@@ -2,3 +2,16 @@ espen
 hovlandsdal
 sublicense
 imbo
+thumbnail
+outbound
+inset
+transverse
+desaturate
+lowercase
+gif
+jpg
+png
+hamcrest
+piotr
+gabryanczyk
+regex
