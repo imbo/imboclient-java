@@ -34,39 +34,39 @@ import org.imboproject.javaclient.util.TextUtils;
 
 /**
  * Abstract Imbo URL for other implementations to extend
- * 
+ *
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  */
 abstract class Url implements UrlInterface {
-    
+
     /**
      * Base URL
      */
     protected String baseUrl;
-    
+
     /**
      * Public key
      */
     protected String publicKey;
-    
+
     /**
      * Private key
      */
     private String privateKey;
-    
+
     /**
      * Access token generator
      */
-    private AccessTokenInterface accessToken; 
-    
+    private AccessTokenInterface accessToken;
+
     /**
      * Query parameters for the URL
      */
     private ArrayList<String> queryParams = new ArrayList<String>();
-    
+
     /**
      * Class constructor
-     * 
+     *
      * @param baseUrl The base URL to use
      * @param publicKey The public key to use
      * @param privateKey The private key to use
@@ -76,27 +76,27 @@ abstract class Url implements UrlInterface {
         this.publicKey = publicKey;
         this.privateKey = privateKey;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public String getUrl() {
         String url = getResourceUrl();
         String queryString = getQueryString();
-        
+
         if (!queryString.isEmpty()) {
             url += "?" + queryString;
         }
-        
+
         if (publicKey == null || privateKey == null) {
             return url;
         }
-        
+
         String token = getAccessToken().generateToken(url, privateKey);
-        
+
         return url + (queryParams.isEmpty() ? "?" : "&") + "accessToken=" + token;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -106,7 +106,7 @@ abstract class Url implements UrlInterface {
         url = url.replace("[]", "%5B%5D");
         return url;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -119,10 +119,10 @@ abstract class Url implements UrlInterface {
      */
     public UrlInterface addQueryParam(String key, String value) {
         queryParams.add(key + "=" + TextUtils.urlEncode(value));
-        
+
         return this;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -130,7 +130,7 @@ abstract class Url implements UrlInterface {
         queryParams.clear();
         return this;
     }
-    
+
     /**
      * Get an instance of the access token
      *
@@ -143,10 +143,10 @@ abstract class Url implements UrlInterface {
         if (accessToken == null) {
             accessToken = new AccessToken();
         }
-        
+
         return accessToken;
     }
-    
+
     /**
      * Set an instance of the access token
      *
@@ -157,23 +157,23 @@ abstract class Url implements UrlInterface {
         this.accessToken = accessToken;
         return this;
     }
-    
+
     /**
      * Retrieves the query string for this URL
-     * 
+     *
      * @return Query string, as a String
      */
     private String getQueryString() {
         if (queryParams.isEmpty()) {
             return "";
         }
-        
+
         return TextUtils.join("&", queryParams);
     }
-    
+
     /**
      * Get the raw URL (with no access token appended)
-     * 
+     *
      * @return The raw URL as a String
      */
     abstract protected String getResourceUrl();
