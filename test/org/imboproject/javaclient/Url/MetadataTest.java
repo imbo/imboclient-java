@@ -29,7 +29,7 @@
 package org.imboproject.javaclient.Url;
 
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import org.imboproject.javaclient.util.RegexMatcher;
 import org.junit.Test;

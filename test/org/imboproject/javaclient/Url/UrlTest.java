@@ -31,8 +31,8 @@ package org.imboproject.javaclient.Url;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.After;
