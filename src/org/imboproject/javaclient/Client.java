@@ -1,6 +1,6 @@
 package org.imboproject.javaclient;
 
-public class ImboClient implements ClientInterface {
+public class Client implements ClientInterface {
 
     public String[] getServerUrls() {
         return null;

@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-public class ImboClientTest extends TestCase {
+public class ClientTest extends TestCase {
 
     @Test
     public void testGetServerUrls() {
