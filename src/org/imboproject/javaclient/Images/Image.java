@@ -32,6 +32,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.json.JSONObject;
 
@@ -171,10 +172,11 @@ public class Image implements ImageInterface {
      * @return Parsed date
      */
     private Date parseDate(String date) {
-        DateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
+        DateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z", Locale.US);
         try {
             return dateFormat.parse(date);
         } catch (ParseException e) {
+            System.out.println(e.getMessage());
             return new Date();
         }
     }
