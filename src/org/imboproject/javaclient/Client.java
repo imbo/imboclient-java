@@ -74,13 +74,32 @@ public class Client implements ClientInterface {
      * Private key used for signed requests
      */
     private String privateKey;
+    
+    /**
+     * Holds a HTTP client instance
+     */
+    private org.imboproject.javaclient.Http.ClientInterface httpClient;
 
+    /**
+     * Constructs the Imbo client
+     * 
+     * @param serverUrl URL to the server
+     * @param publicKey Public key to use for this instance
+     * @param privateKey Private key to use for this instance
+     */
     public Client(String serverUrl, String publicKey, String privateKey) {
         this.serverUrls = parseUrls(serverUrl);
         this.publicKey  = publicKey;
         this.privateKey = privateKey;
     }
 
+    /**
+     * Constructs the Imbo client
+     * 
+     * @param serverUrls URLs to the server
+     * @param publicKey Public key to use for this instance
+     * @param privateKey Private key to use for this instance
+     */
     public Client(String[] serverUrls, String publicKey, String privateKey) {
         this.serverUrls = parseUrls(serverUrls);
         this.publicKey  = publicKey;
@@ -333,6 +352,15 @@ public class Client implements ClientInterface {
     public JSONObject getServerStatus() {
 
         return null;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public ClientInterface setHttpClient(org.imboproject.javaclient.Http.ClientInterface client) {
+		this.httpClient = client;
+		
+    	return this;
     }
 
     /**

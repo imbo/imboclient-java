@@ -28,9 +28,13 @@
  */
 package org.imboproject.javaclient.Http;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
+import java.util.LinkedList;
+
+import org.apache.http.Header;
 
 /**
  * HTTP Client interface
@@ -44,58 +48,64 @@ public interface ClientInterface {
      *
      * @param url URL to perform request against
      * @param data Post-data to send
+     * @throws IOException
      * @return HTTP response
      */
-    public Response post(URL url, HashMap<String, String> data);
+    public Response post(URI url, HashMap<String, String> data) throws IOException;
 
     /**
      * Perform a GET-request against the given URL
      *
      * @param url URL to perform request against
+     * @throws IOException
      * @return HTTP response
      */
-    public Response get(URL url);
+    public Response get(URI url) throws IOException;
 
     /**
      * Perform a HEAD-request against the given URL
      *
      * @param url URL to perform request against
+     * @throws IOException
      * @return HTTP response
      */
-    public Response head(URL url);
+    public Response head(URI url) throws IOException;
 
     /**
      * Perform a DELETE-request against the given URL
      *
      * @param url URL to perform request against
+     * @throws IOException
      * @return HTTP response
      */
-    public Response delete(URL url);
+    public Response delete(URI url) throws IOException;
 
     /**
      * Perform a PUT-request against the given URL
      *
      * @param url URL to perform request against
      * @param data Raw data to PUT, as String
+     * @throws IOException
      * @return HTTP response
      */
-    public Response put(URL url, String data);
+    public Response put(URI url, String data) throws IOException;
 
     /**
      * Perform a PUT-request against the given URL
      *
      * @param url URL to perform request against
      * @param input Input stream to use for reading PUT-data from
+     * @throws IOException
      * @return HTTP response
      */
-    public Response put(URL url, InputStream input);
+    public Response put(URI url, InputStream input) throws IOException;
 
     /**
      * Set request headers to send along with the request
      *
-     * @param headers Hash map of header names and values to send
+     * @param headers Linked list of headers to send
      * @return This client instance
      */
-    public ClientInterface setRequestHeaders(HashMap<String, String> headers);
+    public ClientInterface setRequestHeaders(LinkedList<Header> headers);
 
 }

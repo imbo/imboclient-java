@@ -31,10 +31,10 @@ package org.imboproject.javaclient;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 
 import junit.framework.TestCase;
 
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,6 +51,9 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ClientTest extends TestCase {
 
+	@Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery();
+	
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
@@ -60,10 +63,13 @@ public class ClientTest extends TestCase {
     private String privateKey = "8495c97ea3a313c12c0661dc5526e769";
     private String imageIdentifier = "23d7f91b25f3013fcc75ce070c40e004";
     private String signedUrlPattern = "/signature=.*?&timestamp=\\d{4}-\\d\\d-\\d\\dT\\d\\d%3A\\d\\d%3A\\d\\dZ$/";
+    private ClientInterface httpClient;
 
     @Before
     public void setUp() {
         client = new Client(serverUrl, publicKey, privateKey);
+        
+        //httpClient = 
     }
 
     @After
@@ -99,8 +105,23 @@ public class ClientTest extends TestCase {
      * The client must be able to add a valid local image
      */
     @Test
-    public void testReturnsResponseWhenAddingValidLocalImage() {
+    public void testReturnsResponseWhenAddingValidLocalImage() throws IOException {
+    	/*
+    	 * $imagePath = __DIR__ . '/_files/image.png';
+        $response = $this->getResponseMock();
 
+        $this->driver->expects($this->once())
+                     ->method('put')
+                     ->with($this->matchesRegularExpression($this->signedUrlPattern), $imagePath)
+                     ->will($this->returnValue($response));
+
+        $this->assertSame($response, $this->client->addImage($imagePath));
+    	 */
+    	
+    	
+    	
+    	File image = new File("misc/imbo-logo.png");
+    	client.addImage(image);
     }
 
 }

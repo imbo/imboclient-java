@@ -30,6 +30,7 @@ package org.imboproject.javaclient.Http;
 
 import java.util.HashMap;
 
+import org.apache.http.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,6 +52,21 @@ public class Response implements ResponseInterface {
 	private String body = "";
 	
 	/**
+	 * Content type for this response
+	 */
+	private String contentType;
+	
+	/**
+	 * Content length for this response
+	 */
+	private long contentLength;
+	
+	/**
+	 * Raw body of the response
+	 */
+	private byte[] rawBody;
+	
+	/**
 	 * Status code of the response
 	 */
 	private int statusCode;
@@ -58,7 +74,6 @@ public class Response implements ResponseInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public HashMap<String, String> getHeaders() {
 		return headers;
 	}
@@ -66,16 +81,20 @@ public class Response implements ResponseInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public ResponseInterface setHeaders(HashMap<String, String> headers) {
-		this.headers = headers;
+	public ResponseInterface setHeaders(Header[] headers) {
+		HashMap<String, String> resHeaders = new HashMap<String, String>();
+		for (Header header : headers) {
+			resHeaders.put(header.getName(), header.getValue());
+		}
+		
+		this.headers = resHeaders;
+		
 		return this;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String getBody() {
 		return this.body;
 	}
@@ -83,16 +102,31 @@ public class Response implements ResponseInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public ResponseInterface setBody(String body) {
 		this.body = body;
+		
+		return this;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public byte[] getRawBody() {
+		return this.rawBody;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public ResponseInterface setRawBody(byte[] body) {
+		this.rawBody = body;
+		
 		return this;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public int getStatusCode() {
 		return this.statusCode;
 	}
@@ -100,16 +134,15 @@ public class Response implements ResponseInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public ResponseInterface setStatusCode(int code) {
 		this.statusCode = code;
+		
 		return this;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public int getImboErrorCode() {
 		if (body == null) {
 			return 0;
@@ -131,11 +164,32 @@ public class Response implements ResponseInterface {
 			return 0;
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getImboErrorDescription() {
+		if (body == null) {
+			return "Empty body";
+		}
+		
+		try {
+			JSONObject body = new JSONObject(this.body);
+			if (!body.has("error")) {
+				return "Error not specified";
+			}
+			
+			JSONObject error = body.getJSONObject("error");
+			
+			return error.optString("message", "Error message not specified");
+		} catch (JSONException e) {
+			return e.getMessage();
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean isSuccess() {
 		int code = getStatusCode();
 		
@@ -145,7 +199,6 @@ public class Response implements ResponseInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean isError() {
 		return getStatusCode() >= 400;
 	}
@@ -153,13 +206,44 @@ public class Response implements ResponseInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String getImageIdentifier() {
 		if (headers == null) {
 			return null;
 		}
 		
 		return headers.get("x-imbo-imageidentifier");
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getContentType() {
+		return this.contentType;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public ResponseInterface setContentType(String contentType) {
+		this.contentType = contentType;
+		
+		return this;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public long getContentLength() {
+		return this.contentLength;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public ResponseInterface setContentLength(long contentLength) {
+		this.contentLength = contentLength;
+		
+		return this;
 	}
 	
 	/**

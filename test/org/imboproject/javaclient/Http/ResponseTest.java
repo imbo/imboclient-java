@@ -34,9 +34,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -76,11 +77,12 @@ public class ResponseTest {
 	 */
 	@Test
 	public void testCanSetAndGetAHeaders() {
-		HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put("foo", "bar");
+		Header[] testHeaders = {
+			new BasicHeader("foo", "bar")
+		};
 		
-		assertSame(response, response.setHeaders(headers));
-		assertSame(headers, response.getHeaders());
+		assertSame(response, response.setHeaders(testHeaders));
+		assertEquals("bar", response.getHeaders().get("foo"));
 	}
 	
 	/**
@@ -155,8 +157,9 @@ public class ResponseTest {
     	
     	assertNull(response.getImageIdentifier());
     	
-    	HashMap<String, String> headers = new HashMap<String, String>();
-		headers.put("x-imbo-imageidentifier", imageIdentifier);
+    	Header[] headers = {
+    		new BasicHeader("x-imbo-imageidentifier", imageIdentifier)
+    	};
 		
 		response.setHeaders(headers);
 		

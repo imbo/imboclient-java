@@ -30,6 +30,8 @@ package org.imboproject.javaclient.Http;
 
 import java.util.HashMap;
 
+import org.apache.http.Header;
+
 /**
  * Client response interface 
  * 
@@ -65,10 +67,10 @@ public interface ResponseInterface {
     /**
      * Set the headers for this HTTP response
      * 
-     * @param headers Headers in a key => value hash map
+     * @param headers Array of headers
      * @return This response instance
      */
-    public ResponseInterface setHeaders(HashMap<String, String> headers);
+    public ResponseInterface setHeaders(Header[] headers);
     
     /**
      * Get the response body
@@ -86,6 +88,21 @@ public interface ResponseInterface {
     public ResponseInterface setBody(String body);
     
     /**
+     * Get the raw response body
+     * 
+     * @return Raw response body
+     */
+    public byte[] getRawBody();
+    
+    /**
+     * Set the body contents in a raw, byte-array format
+     * 
+     * @param body The body of the request, as a byte array
+     * @return This response instance
+     */
+    public ResponseInterface setRawBody(byte[] body);
+    
+    /**
      * Get the status code for this request
      * 
      * @return The status code for this request
@@ -96,7 +113,7 @@ public interface ResponseInterface {
      * Set the status code
      * 
      * @param code The HTTP status code to set
-     * @return The status code for this request
+     * @return This response instance
      */
     public ResponseInterface setStatusCode(int code);
     
@@ -106,6 +123,13 @@ public interface ResponseInterface {
      * @return The internal error code from Imbo
      */
     public int getImboErrorCode();
+    
+    /**
+     * Get the optional Imbo error message from the body
+     * 
+     * @return The internal error message from Imbo
+     */
+    public String getImboErrorDescription();
     
     /**
      * Whether or not the response is a success (in the 2xx range)
@@ -130,5 +154,35 @@ public interface ResponseInterface {
      * @return 
      */
     public String getImageIdentifier();
+    
+    /**
+     * Get the content type of this response
+     * 
+     * @return Content-Type header value
+     */
+    public String getContentType();
+    
+    /**
+     * Set the content type of this response
+     * 
+     * @param contentType Content-Type header value
+     * @return This response instance
+     */
+    public ResponseInterface setContentType(String contentType);
+    
+    /**
+     * Get the content length of this response
+     * 
+     * @return Content-Length header value
+     */
+    public long getContentLength();
+    
+    /**
+     * Set the content length of this response
+     * 
+     * @param contentType Content-Length header value
+     * @return This response instance
+     */
+    public ResponseInterface setContentLength(long contentLength);
 	
 }

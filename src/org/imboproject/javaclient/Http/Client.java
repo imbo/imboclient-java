@@ -28,9 +28,28 @@
  */
 package org.imboproject.javaclient.Http;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
+import java.util.LinkedList;
+
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.EntityUtils;
+import org.imboproject.javaclient.ServerException;
 
 /**
  * Imbo HTTP client
@@ -39,65 +58,161 @@ import java.util.HashMap;
  */
 public class Client implements ClientInterface {
 
+	/**
+	 * Web client to use for requests
+	 */
+	private DefaultHttpClient webClient;
+	
+	/**
+	 * HTTP parameters to use for requests
+	 */
+	private HttpParams httpParams;
+	
+	/**
+	 * HTTP request headers
+	 */
+	private LinkedList<Header> requestHeaders;
+	
+	/**
+	 * Response handler for the web client
+	 */
+	private ResponseHandler<Response> defaultHandler = new ResponseHandler<Response>() {
+	    public Response handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+	        Response imboResponse = new Response();
+	        
+	    	HttpEntity entity = response.getEntity();
+	        Header contentType = entity.getContentType();
+	        
+	        imboResponse.setStatusCode(response.getStatusLine().getStatusCode());
+	        imboResponse.setContentType(contentType.getValue());
+	        imboResponse.setContentLength(entity.getContentLength());
+	        imboResponse.setHeaders(response.getAllHeaders());
+	        
+	        if (contentType.getValue().startsWith("image/")) {
+	        	imboResponse.setRawBody(EntityUtils.toByteArray(entity));
+	        } else {
+	        	imboResponse.setBody(EntityUtils.toString(entity));
+	        }
+	        
+	        return imboResponse;
+	    }
+	};
+	
+	/**
+	 * Constructs the HTTP client
+	 */
+	public Client() {
+		webClient = new DefaultHttpClient();
+		
+		httpParams = new BasicHttpParams();
+		HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1);
+		HttpProtocolParams.setContentCharset(httpParams, "UTF_8");
+		HttpProtocolParams.setUseExpectContinue(httpParams, false);
+		HttpConnectionParams.setConnectionTimeout(httpParams, 20000);
+		HttpConnectionParams.setSoTimeout(httpParams, 20000);
+		
+		webClient.setParams(httpParams);
+	}
+	
+	/**
+	 * Returns a set of HTTP parameters
+	 * 
+	 * @return HTTP parameters
+	 */
+	public HttpParams getHttpParams() {
+		return httpParams;
+	}
+	
+	/**
+	 * Set HTTP parameters
+	 * 
+	 * @param params HTTP parameters to use for requests
+	 * @return HTTP client instance
+	 */
+	public ClientInterface setHttpParams(HttpParams params) {
+		webClient.setParams(params);
+		
+		return this;
+	}
+	
     /**
      * {@inheritDoc}
      */
-    public Response post(URL url, HashMap<String, String> data) {
-        return request("POST", url, data);
+    public Response post(URI url, HashMap<String, String> data) throws IOException {
+        //return request("POST", url, data);
+    	return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Response get(URL url) {
+    public Response get(URI url) throws IOException {
+        return request(new HttpGet(url));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Response head(URI url) throws IOException {
+    	return request(new HttpHead(url));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Response delete(URI url) throws IOException {
         return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Response head(URL url) {
+    public Response put(URI url, String data) throws IOException {
         return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Response delete(URL url) {
-        return null;
+    public Response put(URI url, InputStream input) throws IOException {
+        
+    	return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Response put(URL url, String data) {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Response put(URL url, InputStream input) {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Client setRequestHeaders(HashMap<String, String> headers) {
-        return this;
+    public Client setRequestHeaders(LinkedList<Header> headers) {
+        requestHeaders = headers;
+        
+    	return this;
     }
 
     /**
      * Perform a request of the given HTTP method against the given URL
      *
-     * @param method HTTP method to use
-     * @param url URL to request
-     * @param headers Headers to send along with the request
+     * @param request Request to perform
      * @return HTTP response
      */
-    protected Response request(String method, URL url, HashMap<String, String> headers) {
-        return null;
+    protected Response request(HttpRequestBase request) throws IOException {
+		// Add request headers to outgoing request
+    	for (Header header : requestHeaders) {
+    		request.addHeader(header);
+    	}
+    	
+    	// Perform request using default handler
+    	Response response = webClient.execute(request, defaultHandler);
+    	
+    	// Check for errors and throw exception if encountering any
+    	if (response.isError()) {
+    		ServerException exception = new ServerException(response.getImboErrorDescription());
+    		exception.setResponse(response);
+    		
+    		throw exception;
+    	}
+    	
+    	// Return response
+    	return response;
     }
 
 }

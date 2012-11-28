@@ -171,6 +171,7 @@ public interface ClientInterface {
 
     /**
      * Get image meta data
+     * 
      * @param imageIdentifier Image identifier to get meta data for
      * @return Meta data as a JSONObject
      */
@@ -254,5 +255,13 @@ public interface ClientInterface {
      * @return Server status in a JSON object
      */
     public JSONObject getServerStatus();
+    
+    /**
+     * Set the HTTP client to be used for requests
+     * 
+     * @param client HTTP client to be used
+     * @return Returns this instance of the Imbo client
+     */
+    public ClientInterface setHttpClient(org.imboproject.javaclient.Http.ClientInterface client);
 
 }
