@@ -33,14 +33,14 @@ import java.net.URLEncoder;
 
 /**
  * Various text utilities
- * 
+ *
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  */
 public class TextUtils {
 
     /**
      * Join a set of tokens with a given delimiter
-     * 
+     *
      * @param delimiter Which delimiter (character(s)) to use for separating tokens
      * @param tokens Tokens to separate
      * @return String, with the delimiter between each token
@@ -56,13 +56,13 @@ public class TextUtils {
             }
             sb.append(value);
         }
-        
+
         return sb.toString();
     }
-    
+
     /**
      * Join a set of tokens with a given delimiter
-     * 
+     *
      * @param delimiter Which delimiter (character(s)) to use for separating tokens
      * @param tokens Tokens to separate
      * @return String, with the delimiter between each token
@@ -78,33 +78,39 @@ public class TextUtils {
             }
             sb.append(value);
         }
-        
+
         return sb.toString();
     }
-    
+
     /**
      * URL-encode the given input string
-     * 
+     *
      * @param value Input value
      * @return URL-encoded string
      */
     public static String urlEncode(String value) {
         try {
-            return URLEncoder.encode(value, "UTF-8");
+            return URLEncoder.encode(value, "UTF-8")
+                      .replaceAll("\\+", "%20")
+                      .replaceAll("\\%21", "!")
+                      .replaceAll("\\%27", "'")
+                      .replaceAll("\\%28", "(")
+                      .replaceAll("\\%29", ")")
+                      .replaceAll("\\%7E", "~");
         } catch (UnsupportedEncodingException e) {
             // This really should not happen, but if it does, use the raw value
             return value;
         }
     }
-    
+
     /**
      * Normalize color definition
-     * 
+     *
      * @param color Input color definition
      * @return Normalized color definition
      */
     public static String normalizeColor(String color) {
         return color.replace("#", "").toLowerCase();
     }
-    
+
 }

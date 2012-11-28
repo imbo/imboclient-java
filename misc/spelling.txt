@@ -16,3 +16,6 @@ piotr
 gabryanczyk
 regex
 mime
+https
+http
+hostname
