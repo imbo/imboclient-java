@@ -28,6 +28,7 @@
  */
 package org.imboproject.javaclient.Http;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -48,8 +49,8 @@ public interface ClientInterface {
      *
      * @param url URL to perform request against
      * @param data Post-data to send
-     * @throws IOException
      * @return HTTP response
+     * @throws IOException
      */
     public Response post(URI url, HashMap<String, String> data) throws IOException;
 
@@ -57,8 +58,8 @@ public interface ClientInterface {
      * Perform a GET-request against the given URL
      *
      * @param url URL to perform request against
-     * @throws IOException
      * @return HTTP response
+     * @throws IOException
      */
     public Response get(URI url) throws IOException;
 
@@ -66,8 +67,8 @@ public interface ClientInterface {
      * Perform a HEAD-request against the given URL
      *
      * @param url URL to perform request against
-     * @throws IOException
      * @return HTTP response
+     * @throws IOException
      */
     public Response head(URI url) throws IOException;
 
@@ -75,8 +76,8 @@ public interface ClientInterface {
      * Perform a DELETE-request against the given URL
      *
      * @param url URL to perform request against
-     * @throws IOException
      * @return HTTP response
+     * @throws IOException
      */
     public Response delete(URI url) throws IOException;
 
@@ -85,8 +86,8 @@ public interface ClientInterface {
      *
      * @param url URL to perform request against
      * @param data Raw data to PUT, as String
-     * @throws IOException
      * @return HTTP response
+     * @throws IOException
      */
     public Response put(URI url, String data) throws IOException;
 
@@ -95,10 +96,20 @@ public interface ClientInterface {
      *
      * @param url URL to perform request against
      * @param input Input stream to use for reading PUT-data from
-     * @throws IOException
      * @return HTTP response
+     * @throws IOException
      */
     public Response put(URI url, InputStream input) throws IOException;
+
+    /**
+     * Perform a PUT-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param file File to send along with request
+     * @return HTTp response
+     * @throws IOException
+     */
+    public Response put(URI url, File file) throws IOException;
 
     /**
      * Set request headers to send along with the request

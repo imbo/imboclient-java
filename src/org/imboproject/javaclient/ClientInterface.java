@@ -98,18 +98,28 @@ public interface ClientInterface {
      * Add a new image to the server
      *
      * @param image File instance to add to the server
-     * @throws IOException
      * @return Response from the server
+     * @throws IOException
      */
     public ResponseInterface addImage(File image) throws IOException;
+
+    /**
+     * Add a new image to the server
+     *
+     * @param bytes Byte array of data to add to the server
+     * @return Response from the server
+     * @throws IOException
+     */
+    public ResponseInterface addImage(byte[] bytes) throws IOException;
 
     /**
      * Add a new image to the server from a given URL
      *
      * @param url URL to the image you want to add
      * @return Response from the server
+     * @throws IOException
      */
-    public ResponseInterface addImageFromUrl(URI url);
+    public ResponseInterface addImageFromUrl(URI url) throws IOException;
 
     /**
      * Checks if a given image exists on the server already by specifying a local image
@@ -171,7 +181,7 @@ public interface ClientInterface {
 
     /**
      * Get image meta data
-     * 
+     *
      * @param imageIdentifier Image identifier to get meta data for
      * @return Meta data as a JSONObject
      */
@@ -255,10 +265,10 @@ public interface ClientInterface {
      * @return Server status in a JSON object
      */
     public JSONObject getServerStatus();
-    
+
     /**
      * Set the HTTP client to be used for requests
-     * 
+     *
      * @param client HTTP client to be used
      * @return Returns this instance of the Imbo client
      */

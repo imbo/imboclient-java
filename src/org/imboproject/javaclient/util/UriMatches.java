@@ -26,59 +26,43 @@
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/rexxars/imboclient-java
  */
-package org.imboproject.javaclient.Url;
+package org.imboproject.javaclient.util;
 
 import java.net.URI;
 
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+
 /**
- * URL interface
- *
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
+ *
  */
-public interface UrlInterface {
+public class UriMatches extends TypeSafeMatcher<URI> {
 
-    /**
-     * Returns the URL with query parameters added
-     *
-     * @return Full URL with query parameters, as a String
-     */
-    public String getUrl();
+    private String regex;
 
-    /**
-     * Get the complete URL as an URL-encoded string
-     *
-     * @return URL-encoded string
-     */
-    public String getUrlEncoded();
+    public void setRegex(String regex) {
+        this.regex = regex;
+    }
 
-    /**
-     * Resets the URL - removes all query parameters
-     *
-     * @return URL without any query parameters
-     */
-    public UrlInterface reset();
+    @Override
+    public void describeTo(Description description) {
+        description.appendText("does not match regex");
+    }
 
-    /**
-     * Adds a query parameter to the URL
-     *
-     * @param key Name of the parameter. For instance "page" or "t[]"
-     * @param value Value of the parameter. For instance "10" or "border:width=50,height=50"
-     * @return URL with the query added
-     */
-    public UrlInterface addQueryParam(String key, String value);
+    @Override
+    protected boolean matchesSafely(URI url) {
+        return url.toString().matches(regex);
+    }
 
-    /**
-     * Returns the URL with query parameters added
-     *
-     * @return Full URL with query parameters, as a String
-     */
-    public String toString();
+    @Factory
+    public static <T> Matcher<URI> UriMatches(String regex) {
+        UriMatches matcher = new UriMatches();
+        matcher.setRegex(regex);
 
-    /**
-     * Returns the URL in URI format
-     *
-     * @return Full URL with query parameters, as a URI
-     */
-    public URI toUri();
+        return matcher;
+    }
 
 }

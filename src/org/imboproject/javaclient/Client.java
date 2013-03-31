@@ -28,6 +28,7 @@
  */
 package org.imboproject.javaclient;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 
+import org.imboproject.javaclient.Http.Response;
 import org.imboproject.javaclient.Http.ResponseInterface;
 import org.imboproject.javaclient.Images.ImageInterface;
 import org.imboproject.javaclient.Images.QueryInterface;
@@ -48,6 +50,7 @@ import org.imboproject.javaclient.Url.Image;
 import org.imboproject.javaclient.Url.Images;
 import org.imboproject.javaclient.Url.Metadata;
 import org.imboproject.javaclient.Url.Status;
+import org.imboproject.javaclient.Url.UrlInterface;
 import org.imboproject.javaclient.Url.User;
 import org.imboproject.javaclient.util.Crypto;
 import org.imboproject.javaclient.util.TextUtils;
@@ -74,7 +77,7 @@ public class Client implements ClientInterface {
      * Private key used for signed requests
      */
     private String privateKey;
-    
+
     /**
      * Holds a HTTP client instance
      */
@@ -82,7 +85,7 @@ public class Client implements ClientInterface {
 
     /**
      * Constructs the Imbo client
-     * 
+     *
      * @param serverUrl URL to the server
      * @param publicKey Public key to use for this instance
      * @param privateKey Private key to use for this instance
@@ -95,7 +98,7 @@ public class Client implements ClientInterface {
 
     /**
      * Constructs the Imbo client
-     * 
+     *
      * @param serverUrls URLs to the server
      * @param publicKey Public key to use for this instance
      * @param privateKey Private key to use for this instance
@@ -159,16 +162,33 @@ public class Client implements ClientInterface {
         validateLocalFile(image);
 
         String imageIdentifier = getImageIdentifier(image);
+        URI signedUrl = getSignedUrl("PUT", getImageUrl(imageIdentifier));
 
-        return null;
+        return httpClient.put(signedUrl, image);
     }
 
     /**
      * {@inheritDoc}
      */
-    public ResponseInterface addImageFromUrl(URI url) {
+    public ResponseInterface addImage(byte[] bytes) throws IOException {
+        if (bytes == null || bytes.length == 0) {
+            throw new IllegalArgumentException("Byte array is empty");
+        }
 
-        return null;
+        String imageIdentifier = getImageIdentifier(bytes);
+        URI signedUrl = getSignedUrl("PUT", getImageUrl(imageIdentifier));
+        ByteArrayInputStream buffer = new ByteArrayInputStream(bytes);
+
+        return httpClient.put(signedUrl, buffer);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ResponseInterface addImageFromUrl(URI url) throws IOException {
+        Response response = httpClient.get(url);
+
+        return addImage(response.getRawBody());
     }
 
     /**
@@ -353,13 +373,13 @@ public class Client implements ClientInterface {
 
         return null;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public ClientInterface setHttpClient(org.imboproject.javaclient.Http.ClientInterface client) {
 		this.httpClient = client;
-		
+
     	return this;
     }
 
@@ -377,6 +397,10 @@ public class Client implements ClientInterface {
         return Crypto.hashHmacSha256(data, privateKey);
     }
 
+    private URI getSignedUrl(String method, UrlInterface url) {
+        return getSignedUrl(method, url.toString());
+    }
+
     /**
      * Get a signed URL
      *
@@ -384,7 +408,7 @@ public class Client implements ClientInterface {
      * @param url The URL to send a request to
      * @return Returns a string with the necessary parts for authenticating
      */
-    private String getSignedUrl(String method, String url) {
+    private URI getSignedUrl(String method, String url) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         String timestamp = df.format(new Date());
         String signature = generateSignature(method, url, timestamp);
@@ -398,7 +422,14 @@ public class Client implements ClientInterface {
             TextUtils.urlEncode(timestamp)
         };
 
-        return TextUtils.join("", parts);
+        URI signed;
+        try {
+            signed = new URI(TextUtils.join("", parts));
+        } catch (URISyntaxException e) {
+            return null;
+        }
+
+        return signed;
     }
 
     /**

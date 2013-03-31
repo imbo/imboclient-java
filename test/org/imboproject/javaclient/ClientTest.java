@@ -28,12 +28,19 @@
  */
 package org.imboproject.javaclient;
 
+import static org.imboproject.javaclient.util.UriMatches.UriMatches;
+
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import junit.framework.TestCase;
 
+import org.imboproject.javaclient.Http.ResponseInterface;
+import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.After;
 import org.junit.Before;
@@ -53,23 +60,25 @@ public class ClientTest extends TestCase {
 
 	@Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
-	
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
+    public final org.imboproject.javaclient.Http.ClientInterface httpClient = context.mock(org.imboproject.javaclient.Http.ClientInterface.class);
+
+    private int mockCount = 0;
     private Client client;
     private String serverUrl = "http://host";
     private String publicKey = "key";
     private String privateKey = "8495c97ea3a313c12c0661dc5526e769";
     private String imageIdentifier = "23d7f91b25f3013fcc75ce070c40e004";
-    private String signedUrlPattern = "/signature=.*?&timestamp=\\d{4}-\\d\\d-\\d\\dT\\d\\d%3A\\d\\d%3A\\d\\dZ$/";
-    private ClientInterface httpClient;
+    private String signedUrlPattern = ".*?signature=.*?&timestamp=\\d{4}-\\d\\d-\\d\\dT\\d\\d%3A\\d\\d%3A\\d\\dZ$";
 
     @Before
     public void setUp() {
+        // Set up Imbo client
         client = new Client(serverUrl, publicKey, privateKey);
-        
-        //httpClient = 
+        client.setHttpClient(httpClient);
     }
 
     @After
@@ -106,22 +115,48 @@ public class ClientTest extends TestCase {
      */
     @Test
     public void testReturnsResponseWhenAddingValidLocalImage() throws IOException {
-    	/*
-    	 * $imagePath = __DIR__ . '/_files/image.png';
-        $response = $this->getResponseMock();
+    	final File image = new File("misc/imbo-logo.png");
+    	final ResponseInterface response = getResponseMock();
 
-        $this->driver->expects($this->once())
-                     ->method('put')
-                     ->with($this->matchesRegularExpression($this->signedUrlPattern), $imagePath)
-                     ->will($this->returnValue($response));
+    	context.checking(new Expectations() {{
+    	    oneOf(httpClient).put(with(uriMatches(signedUrlPattern)), with(same(image)));
+    	    will(returnValue(response));
+        }});
 
-        $this->assertSame($response, $this->client->addImage($imagePath));
-    	 */
-    	
-    	
-    	
-    	File image = new File("misc/imbo-logo.png");
-    	client.addImage(image);
+    	assertSame(response, client.addImage(image));
+    }
+
+    /**
+     * The client must be able to fetch an image from an URL and add it
+     */
+    @Test
+    public void testReturnsResponseWhenAddingARemoteImage() throws URISyntaxException, IOException {
+        final ResponseInterface getResponse = getResponseMock();
+        final ResponseInterface putResponse = getResponseMock();
+        final URI imageUrl = new URI("http://example.com/image.jpg");
+        final byte[] imgBytes = { 1, 2, 3, 4, 5 };
+
+        context.checking(new Expectations() {{
+            oneOf(httpClient).get(with(same(imageUrl)));
+            will(returnValue(getResponse));
+
+            oneOf(getResponse).getRawBody();
+            will(returnValue(imgBytes));
+
+            oneOf(httpClient).put(with(uriMatches(signedUrlPattern)), with(any(ByteArrayInputStream.class)));
+            will(returnValue(putResponse));
+        }});
+
+        assertSame(putResponse, client.addImageFromUrl(imageUrl));
+
+    }
+
+    protected static <T> org.hamcrest.Matcher<URI> uriMatches(String regex) {
+        return UriMatches(regex);
+    }
+
+    protected ResponseInterface getResponseMock() {
+        return context.mock(ResponseInterface.class, "response" + (++mockCount));
     }
 
 }

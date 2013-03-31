@@ -28,6 +28,8 @@
  */
 package org.imboproject.javaclient.Url;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import org.imboproject.javaclient.util.TextUtils;
@@ -112,6 +114,17 @@ abstract class Url implements UrlInterface {
      */
     public String toString() {
         return getUrl();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public URI toUri() {
+        try {
+            return new URI(getUrl());
+        } catch (URISyntaxException e) {
+            return null;
+        }
     }
 
     /**
