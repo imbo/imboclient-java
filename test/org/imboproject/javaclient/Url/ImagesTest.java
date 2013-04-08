@@ -59,7 +59,7 @@ public class ImagesTest {
 
     @Test
     public void testCanGenerateACompleteUrlIncludingAnAccessToken() {
-        String url = (new Images(host, pubKey, "privateKey")).getUrl();
+        String url = (new ImagesUrl(host, pubKey, "privateKey")).getUrl();
 
         assertThat(url, startsWith(expectedValue));
         assertThat(url, RegexMatcher.matches(".*accessToken=[a-f0-9]{64}$"));

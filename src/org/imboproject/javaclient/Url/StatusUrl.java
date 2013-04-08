@@ -33,13 +33,13 @@ package org.imboproject.javaclient.Url;
  *
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  */
-public class Status extends Url implements UrlInterface {
+public class StatusUrl extends Url implements UrlInterface {
 
     /**
      * {@inheritDoc}
      */
-    public Status(String baseUrl, String publicKey, String privateKey) {
-        super(baseUrl, publicKey, privateKey);
+    public StatusUrl(String baseUrl) {
+        super(baseUrl, null, null);
     }
 
     /**

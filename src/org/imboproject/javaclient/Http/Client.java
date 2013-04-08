@@ -33,7 +33,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.apache.http.Header;
@@ -44,7 +43,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -136,19 +137,32 @@ public class Client implements ClientInterface {
 
 		return this;
 	}
-
-    /**
+	
+	/**
      * {@inheritDoc}
      */
-    public Response post(URI url, HashMap<String, String> data) throws IOException {
-        //return request("POST", url, data);
-    	return null;
+    public Response post(URI url, String data) throws IOException {
+    	return post(url, data, null);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Response get(URI url) throws IOException {
+    public Response post(URI url, String data, Header[] headers) throws IOException {
+    	HttpPost post = new HttpPost(url);
+    	post.setEntity(new StringEntity(data));
+    	
+    	if (headers != null) {
+    		post.setHeaders(headers);
+    	}
+    	
+    	return request(post);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ResponseInterface get(URI url) throws IOException {
         return request(new HttpGet(url));
     }
 
@@ -214,7 +228,10 @@ public class Client implements ClientInterface {
 
     	// Check for errors and throw exception if encountering any
     	if (response.isError()) {
-    		ServerException exception = new ServerException(response.getImboErrorDescription());
+    		ServerException exception = new ServerException(
+				response.getImboErrorDescription(),
+				response.getImboErrorCode()
+			);
     		exception.setResponse(response);
 
     		throw exception;

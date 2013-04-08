@@ -35,7 +35,7 @@ import org.imboproject.javaclient.util.TextUtils;
  *
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  */
-public class Metadata extends Url implements UrlInterface {
+public class MetadataUrl extends Url implements UrlInterface {
 
     /**
      * Image identifier for the image
@@ -48,7 +48,7 @@ public class Metadata extends Url implements UrlInterface {
      * {@inheritDoc}
      * @param imageIdentifier The image identifier to use in the URL
      */
-    public Metadata(String baseUrl, String publicKey, String privateKey, String imageIdentifier) {
+    public MetadataUrl(String baseUrl, String publicKey, String privateKey, String imageIdentifier) {
         super(baseUrl, publicKey, privateKey);
 
         this.imageIdentifier = imageIdentifier;

@@ -46,7 +46,7 @@ import org.junit.Test;
  */
 public class ImageTest {
 
-    private Image url;
+    private ImageUrl url;
     final private String baseUrl = "http://host";
     final private String publicKey = "public";
     final private String privateKey = "41ebdff96ee9986119a5033f30d9a6c8";
@@ -57,7 +57,7 @@ public class ImageTest {
      */
     @Before
     public void setUp() {
-        url = new Image(
+        url = new ImageUrl(
             baseUrl,
             publicKey,
             privateKey,

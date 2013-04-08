@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.apache.http.Header;
@@ -44,6 +43,16 @@ import org.apache.http.Header;
  */
 public interface ClientInterface {
 
+	/**
+     * Perform a POST-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param data Post-data to send
+     * @return HTTP response
+     * @throws IOException
+     */
+    public Response post(URI url, String data) throws IOException;
+	
     /**
      * Perform a POST-request against the given URL
      *
@@ -52,7 +61,7 @@ public interface ClientInterface {
      * @return HTTP response
      * @throws IOException
      */
-    public Response post(URI url, HashMap<String, String> data) throws IOException;
+    public Response post(URI url, String data, Header[] headers) throws IOException;
 
     /**
      * Perform a GET-request against the given URL
@@ -61,7 +70,7 @@ public interface ClientInterface {
      * @return HTTP response
      * @throws IOException
      */
-    public Response get(URI url) throws IOException;
+    public ResponseInterface get(URI url) throws IOException;
 
     /**
      * Perform a HEAD-request against the given URL

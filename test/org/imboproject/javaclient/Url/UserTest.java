@@ -59,7 +59,7 @@ public class UserTest {
 
     @Test
     public void testCanGenerateACompleteUrlIncludingAnAccessToken() {
-        String url = (new User(host, pubKey, "privateKey")).getUrl();
+        String url = (new UserUrl(host, pubKey, "privateKey")).getUrl();
 
         assertThat(url, startsWith(expectedValue));
         assertThat(url, RegexMatcher.matches(".*accessToken=[a-f0-9]{64}$"));

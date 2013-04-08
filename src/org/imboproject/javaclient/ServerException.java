@@ -50,12 +50,19 @@ public class ServerException extends IOException {
 	private ResponseInterface response;
 	
 	/**
+	 * Holds the error code for this exception
+	 */
+	private int errorCode = 0;
+	
+	/**
 	 * Exception constructor
 	 * 
 	 * @param errorMessage
 	 */
-	public ServerException(String errorMessage) {
-		super(errorMessage); 
+	public ServerException(String errorMessage, int errorCode) {
+		super(errorMessage);
+		
+		this.errorCode = errorCode;
 	}
 
 	/**
@@ -73,10 +80,20 @@ public class ServerException extends IOException {
 	/**
 	 * Get the response instance
 	 * 
-	 * @return
+	 * @return ResponseInterface
 	 */
 	public ResponseInterface getResponse() {
 		return this.response;
+	}
+	
+	/**
+	 * Get the error code for this exception
+	 * 
+	 * @return Error code
+	 */
+	public int getErrorCode() {
+		return this.errorCode;
+		
 	}
 	
 }

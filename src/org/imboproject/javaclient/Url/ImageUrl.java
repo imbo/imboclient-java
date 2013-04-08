@@ -37,7 +37,7 @@ import org.imboproject.javaclient.util.TextUtils;
  * 
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  */
-public class Image extends Url implements ImageInterface {
+public class ImageUrl extends Url implements ImageInterface {
 
     /**
      * Image identifier for this image
@@ -52,7 +52,7 @@ public class Image extends Url implements ImageInterface {
      * @param privateKey The private key to use
      * @param imageIdentifier The image identifier to use in the URL
      */
-    public Image(String baseUrl, String publicKey, String privateKey, String imageIdentifier) {
+    public ImageUrl(String baseUrl, String publicKey, String privateKey, String imageIdentifier) {
         super(baseUrl, publicKey, privateKey);
         
         this.imageIdentifier = imageIdentifier;

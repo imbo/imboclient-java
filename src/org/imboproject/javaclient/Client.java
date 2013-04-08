@@ -42,16 +42,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 
-import org.imboproject.javaclient.Http.Response;
 import org.imboproject.javaclient.Http.ResponseInterface;
-import org.imboproject.javaclient.Images.ImageInterface;
+import org.imboproject.javaclient.Images.Image;
 import org.imboproject.javaclient.Images.QueryInterface;
-import org.imboproject.javaclient.Url.Image;
-import org.imboproject.javaclient.Url.Images;
-import org.imboproject.javaclient.Url.Metadata;
-import org.imboproject.javaclient.Url.Status;
+import org.imboproject.javaclient.Url.ImageUrl;
+import org.imboproject.javaclient.Url.ImagesUrl;
+import org.imboproject.javaclient.Url.MetadataUrl;
+import org.imboproject.javaclient.Url.StatusUrl;
 import org.imboproject.javaclient.Url.UrlInterface;
-import org.imboproject.javaclient.Url.User;
+import org.imboproject.javaclient.Url.UserUrl;
 import org.imboproject.javaclient.util.Crypto;
 import org.imboproject.javaclient.util.TextUtils;
 import org.json.JSONObject;
@@ -119,40 +118,40 @@ public class Client implements ClientInterface {
     /**
      * {@inheritDoc}
      */
-    public Status getStatusUrl() {
-        return new Status(serverUrls[0], null, null);
+    public StatusUrl getStatusUrl() {
+        return new StatusUrl(serverUrls[0]);
     }
 
     /**
      * {@inheritDoc}
      */
-    public User getUserUrl() {
-        return new User(serverUrls[0], publicKey, privateKey);
+    public UserUrl getUserUrl() {
+        return new UserUrl(serverUrls[0], publicKey, privateKey);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Images getImagesUrl() {
-        return new Images(serverUrls[0], publicKey, privateKey);
+    public ImagesUrl getImagesUrl() {
+        return new ImagesUrl(serverUrls[0], publicKey, privateKey);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Image getImageUrl(String imageIdentifier) {
+    public ImageUrl getImageUrl(String imageIdentifier) {
         String hostname = getHostForImageIdentifier(imageIdentifier);
 
-        return new Image(hostname, publicKey, privateKey, imageIdentifier);
+        return new ImageUrl(hostname, publicKey, privateKey, imageIdentifier);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Metadata getMetadataUrl(String imageIdentifier) {
+    public MetadataUrl getMetadataUrl(String imageIdentifier) {
         String hostname = getHostForImageIdentifier(imageIdentifier);
 
-        return new Metadata(hostname, publicKey, privateKey, imageIdentifier);
+        return new MetadataUrl(hostname, publicKey, privateKey, imageIdentifier);
     }
 
     /**
@@ -186,7 +185,7 @@ public class Client implements ClientInterface {
      * {@inheritDoc}
      */
     public ResponseInterface addImageFromUrl(URI url) throws IOException {
-        Response response = httpClient.get(url);
+        ResponseInterface response = httpClient.get(url);
 
         return addImage(response.getRawBody());
     }
@@ -218,9 +217,11 @@ public class Client implements ClientInterface {
     /**
      * {@inheritDoc}
      */
-    public ResponseInterface deleteImage(String imageIdentifier) {
-
-        return null;
+    public ResponseInterface deleteImage(String imageIdentifier) throws IOException {
+    	ImageUrl url  = this.getImageUrl(imageIdentifier);
+    	URI signedUrl = this.getSignedUrl("DELETE", url);
+    	
+        return this.httpClient.delete(signedUrl);
     }
 
     /**
@@ -266,7 +267,7 @@ public class Client implements ClientInterface {
     /**
      * {@inheritDoc}
      */
-    public ImageInterface[] getImages() {
+    public org.imboproject.javaclient.Images.Image[] getImages() {
 
         return null;
     }
@@ -274,7 +275,7 @@ public class Client implements ClientInterface {
     /**
      * {@inheritDoc}
      */
-    public ImageInterface[] getImages(QueryInterface query) {
+    public org.imboproject.javaclient.Images.Image[] getImages(QueryInterface query) {
 
         return null;
     }
@@ -370,6 +371,14 @@ public class Client implements ClientInterface {
      * {@inheritDoc}
      */
     public JSONObject getServerStatus() {
+
+        return null;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public JSONObject getUserInfo() {
 
         return null;
     }

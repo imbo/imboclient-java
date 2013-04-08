@@ -43,7 +43,7 @@ public class MetadataTest {
 
     @Test
     public void testCanGenerateACompleteUrlIncludingAnAccessToken() {
-        String url = (new Metadata("http://imbo", "publicKey", "privateKey", "image")).getUrl();
+        String url = (new MetadataUrl("http://imbo", "publicKey", "privateKey", "image")).getUrl();
 
         assertThat(url, startsWith("http://imbo/users/publicKey/images/image/meta.json"));
         assertThat(url, RegexMatcher.matches(".*accessToken=[a-f0-9]{64}$"));

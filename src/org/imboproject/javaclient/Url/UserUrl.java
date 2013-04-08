@@ -33,12 +33,12 @@ package org.imboproject.javaclient.Url;
  *
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  */
-public class User extends Url implements UrlInterface {
+public class UserUrl extends Url implements UrlInterface {
 
     /**
      * {@inheritDoc}
      */
-    public User(String baseUrl, String publicKey, String privateKey) {
+    public UserUrl(String baseUrl, String publicKey, String privateKey) {
         super(baseUrl, publicKey, privateKey);
     }
 

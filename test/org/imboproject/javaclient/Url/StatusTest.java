@@ -55,7 +55,7 @@ public class StatusTest {
 
     @Test
     public void testCanGenerateACompleteUrlThatDoesNotIncludeAnAccessToken() {
-        assertEquals(expectedValue, (new Status(host, null, null)).toString());
+        assertEquals(expectedValue, (new StatusUrl(host)).toString());
     }
 
     @Parameterized.Parameters

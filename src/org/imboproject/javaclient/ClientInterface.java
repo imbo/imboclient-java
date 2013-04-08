@@ -34,13 +34,13 @@ import java.io.InputStream;
 import java.net.URI;
 
 import org.imboproject.javaclient.Http.ResponseInterface;
-import org.imboproject.javaclient.Images.ImageInterface;
+import org.imboproject.javaclient.Images.Image;
 import org.imboproject.javaclient.Images.QueryInterface;
-import org.imboproject.javaclient.Url.Image;
-import org.imboproject.javaclient.Url.Images;
-import org.imboproject.javaclient.Url.Metadata;
-import org.imboproject.javaclient.Url.Status;
-import org.imboproject.javaclient.Url.User;
+import org.imboproject.javaclient.Url.ImageUrl;
+import org.imboproject.javaclient.Url.ImagesUrl;
+import org.imboproject.javaclient.Url.MetadataUrl;
+import org.imboproject.javaclient.Url.StatusUrl;
+import org.imboproject.javaclient.Url.UserUrl;
 import org.json.JSONObject;
 
 /**
@@ -62,21 +62,21 @@ public interface ClientInterface {
      *
      * @return URL to the status resource
      */
-    public Status getStatusUrl();
+    public StatusUrl getStatusUrl();
 
     /**
      * Get the URL to the current user
      *
      * @return URL to the current user
      */
-    public User getUserUrl();
+    public UserUrl getUserUrl();
 
     /**
      * Get the URL to the images resource of the current user
      *
      * @return URL to the images resource
      */
-    public Images getImagesUrl();
+    public ImagesUrl getImagesUrl();
 
     /**
      * Get the URL to a specific image
@@ -84,7 +84,7 @@ public interface ClientInterface {
      * @param imageIdentifier Image identifier for the wanted image
      * @return URL to the image
      */
-    public Image getImageUrl(String imageIdentifier);
+    public ImageUrl getImageUrl(String imageIdentifier);
 
     /**
      * Get the URL to the meta data of a specific image
@@ -92,7 +92,7 @@ public interface ClientInterface {
      * @param imageIdentifier Image identifier for the wanted image
      * @return URL to the meta data resource
      */
-    public Metadata getMetadataUrl(String imageIdentifier);
+    public MetadataUrl getMetadataUrl(String imageIdentifier);
 
     /**
      * Add a new image to the server
@@ -150,8 +150,9 @@ public interface ClientInterface {
      *
      * @param imageIdentifier Image identifier of the image to delete
      * @return Response from the server
+     * @throws IOException 
      */
-    public ResponseInterface deleteImage(String imageIdentifier);
+    public ResponseInterface deleteImage(String imageIdentifier) throws IOException;
 
     /**
      * Edit image meta data
@@ -199,7 +200,7 @@ public interface ClientInterface {
      *
      * @return An array of images (can be empty)
      */
-    public ImageInterface[] getImages();
+    public org.imboproject.javaclient.Images.Image[] getImages();
 
     /**
      * Get an array of images currently stored on the server
@@ -207,7 +208,7 @@ public interface ClientInterface {
      * @param query Query to send to the server
      * @return An array of images (can be empty)
      */
-    public ImageInterface[] getImages(QueryInterface query);
+    public org.imboproject.javaclient.Images.Image[] getImages(QueryInterface query);
 
     /**
      * Get the binary data of an image stored on the server
@@ -262,9 +263,16 @@ public interface ClientInterface {
     /**
      * Get the server status
      *
-     * @return Server status in a JSON object
+     * @return Server status as a JSON object
      */
     public JSONObject getServerStatus();
+    
+    /**
+     * Get user information
+     * 
+     * @return User information as a JSON object
+     */
+    public JSONObject getUserInfo();
 
     /**
      * Set the HTTP client to be used for requests

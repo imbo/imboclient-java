@@ -34,9 +34,9 @@ import org.imboproject.javaclient.util.TextUtils;
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  *
  */
-public class Images extends Url implements UrlInterface {
+public class ImagesUrl extends Url implements UrlInterface {
 
-    public Images(String baseUrl, String publicKey, String privateKey) {
+    public ImagesUrl(String baseUrl, String publicKey, String privateKey) {
         super(baseUrl, publicKey, privateKey);
     }
 

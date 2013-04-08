@@ -84,15 +84,6 @@ public class TextUtilsTest {
     }
     
     /**
-     * Should be able to encode simple strings
-     */
-    @Test
-    public void testEncodingDoesNothingOnSimpleStrings() {
-        String input = "Hey there";
-        assertEquals("Hey+there", TextUtils.urlEncode(input));
-    }
-    
-    /**
      * Should be able to encode more complex strings
      */
     @Test
