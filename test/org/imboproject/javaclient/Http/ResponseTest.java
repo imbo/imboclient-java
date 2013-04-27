@@ -97,6 +97,39 @@ public class ResponseTest {
 	}
 	
 	/**
+	 * The response class must be able to set and get the content-type
+	 */
+	@Test
+	public void testCanSetAndGetAContentType() {
+		String contentType = "application/json";
+		
+		assertSame(response, response.setContentType(contentType));
+		assertEquals(contentType, response.getContentType());
+	}
+	
+	/**
+	 * The response class must be able to set and get the content length
+	 */
+	@Test
+	public void testCanSetAndGetContentLength() {
+		int length = 1337;
+		
+		assertSame(response, response.setContentLength(length));
+		assertEquals(length, response.getContentLength());
+	}
+	
+	/**
+	 * The response class must be able to set and get a raw body
+	 */
+	@Test
+	public void testCanSetAndGetRawBody() {
+		byte[] body = new byte[] { 1, 2, 3, 4, 5};
+		
+		assertSame(response, response.setRawBody(body));
+		assertEquals(body, response.getRawBody());
+	}
+	
+	/**
 	 * The response class must be able to set and get a status code
 	 */
 	@Test
@@ -186,7 +219,13 @@ public class ResponseTest {
     public void testCanReturnAnImboErrorCodeWhenTheBodyHasAnErrorElement() {
     	assertEquals(0, response.getImboErrorCode());
     	
+    	response.setBody(null);
+    	assertEquals(0, response.getImboErrorCode());
+    	
     	response.setBody("foobar");
+    	assertEquals(0, response.getImboErrorCode());
+    	
+    	response.setBody("{}");
     	assertEquals(0, response.getImboErrorCode());
     	
     	response.setBody("{\"error\":{\"code\":400}}");
@@ -198,4 +237,29 @@ public class ResponseTest {
     	response.setBody("{\"error\":{\"imboErrorCode\":\"400\"}}");
     	assertEquals(400, response.getImboErrorCode());
     }
+    
+    /**
+     * The response must return a reasonably verbose error description
+     */
+    @Test
+    public void testCanReturnInformativeErrorDescription() {
+    	assertEquals("Empty body", response.getImboErrorDescription());
+    	
+    	response.setBody(null);
+    	assertEquals("Empty body", response.getImboErrorDescription());
+    	
+    	response.setBody("foobar");
+    	assertEquals("A JSONObject text must begin with '{' at character 1", response.getImboErrorDescription());
+    	
+    	response.setBody("{}");
+    	assertEquals("Error not specified", response.getImboErrorDescription());
+    	
+    	response.setBody("{\"error\":{\"code\":400}}");
+    	assertEquals("Error message not specified", response.getImboErrorDescription());
+    	
+    	response.setBody("{\"error\":{\"message\":\"Zie error\"}}");
+    	assertEquals("Zie error", response.getImboErrorDescription());
+    }
+    
+    
 }

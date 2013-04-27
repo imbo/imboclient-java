@@ -33,7 +33,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.LinkedList;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -53,6 +52,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.EntityUtils;
 import org.imboproject.javaclient.ServerException;
+import org.imboproject.javaclient.Url.UrlInterface;
 
 /**
  * Imbo HTTP client
@@ -74,7 +74,7 @@ public class Client implements ClientInterface {
 	/**
 	 * HTTP request headers
 	 */
-	private LinkedList<Header> requestHeaders;
+	private Header[] requestHeaders;
 
 	/**
 	 * Response handler for the web client
@@ -162,15 +162,29 @@ public class Client implements ClientInterface {
     /**
      * {@inheritDoc}
      */
-    public ResponseInterface get(URI url) throws IOException {
+    public Response get(URI url) throws IOException {
         return request(new HttpGet(url));
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+	public Response get(UrlInterface url) throws IOException {
+		return this.get(url.toUri());
+	}
 
     /**
      * {@inheritDoc}
      */
     public Response head(URI url) throws IOException {
     	return request(new HttpHead(url));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Response head(UrlInterface url) throws IOException {
+    	return this.head(url.toUri());
     }
 
     /**
@@ -186,6 +200,13 @@ public class Client implements ClientInterface {
     public Response put(URI url, String data) throws IOException {
         return null;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+	public Response put(URI url, String data, Header[] headers) throws IOException {
+		return null;
+	}
 
     /**
      * {@inheritDoc}
@@ -205,7 +226,7 @@ public class Client implements ClientInterface {
     /**
      * {@inheritDoc}
      */
-    public Client setRequestHeaders(LinkedList<Header> headers) {
+    public Client setRequestHeaders(Header[] headers) {
         requestHeaders = headers;
 
     	return this;

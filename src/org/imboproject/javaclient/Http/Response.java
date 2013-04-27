@@ -169,7 +169,7 @@ public class Response implements ResponseInterface {
 	 * {@inheritDoc}
 	 */
 	public String getImboErrorDescription() {
-		if (body == null) {
+		if (body == null || body == "") {
 			return "Empty body";
 		}
 		

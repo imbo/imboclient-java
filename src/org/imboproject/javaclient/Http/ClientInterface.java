@@ -32,9 +32,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.LinkedList;
 
 import org.apache.http.Header;
+import org.imboproject.javaclient.Url.UrlInterface;
 
 /**
  * HTTP Client interface
@@ -44,6 +44,15 @@ import org.apache.http.Header;
 public interface ClientInterface {
 
 	/**
+	 * HTTP methods
+	 */
+	public static final String GET = "GET";
+	public static final String PUT = "PUT";
+	public static final String HEAD = "HEAD";
+	public static final String POST = "POST";
+	public static final String DELETE = "DELETE";
+	
+	/**
      * Perform a POST-request against the given URL
      *
      * @param url URL to perform request against
@@ -51,17 +60,18 @@ public interface ClientInterface {
      * @return HTTP response
      * @throws IOException
      */
-    public Response post(URI url, String data) throws IOException;
+    public ResponseInterface post(URI url, String data) throws IOException;
 	
     /**
      * Perform a POST-request against the given URL
      *
      * @param url URL to perform request against
      * @param data Post-data to send
+     * @param headers Headers to send along with the request
      * @return HTTP response
      * @throws IOException
      */
-    public Response post(URI url, String data, Header[] headers) throws IOException;
+    public ResponseInterface post(URI url, String data, Header[] headers) throws IOException;
 
     /**
      * Perform a GET-request against the given URL
@@ -71,6 +81,15 @@ public interface ClientInterface {
      * @throws IOException
      */
     public ResponseInterface get(URI url) throws IOException;
+    
+    /**
+     * Perform a GET-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @return HTTP response
+     * @throws IOException
+     */
+    public ResponseInterface get(UrlInterface url) throws IOException;
 
     /**
      * Perform a HEAD-request against the given URL
@@ -79,7 +98,16 @@ public interface ClientInterface {
      * @return HTTP response
      * @throws IOException
      */
-    public Response head(URI url) throws IOException;
+    public ResponseInterface head(URI url) throws IOException;
+    
+    /**
+     * Perform a HEAD-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @return HTTP response
+     * @throws IOException
+     */
+    public ResponseInterface head(UrlInterface url) throws IOException;
 
     /**
      * Perform a DELETE-request against the given URL
@@ -88,17 +116,18 @@ public interface ClientInterface {
      * @return HTTP response
      * @throws IOException
      */
-    public Response delete(URI url) throws IOException;
+    public ResponseInterface delete(URI url) throws IOException;
 
     /**
      * Perform a PUT-request against the given URL
      *
      * @param url URL to perform request against
      * @param data Raw data to PUT, as String
+     * @param headers Headers to send along with the request
      * @return HTTP response
      * @throws IOException
      */
-    public Response put(URI url, String data) throws IOException;
+    public ResponseInterface put(URI url, String data, Header[] headers) throws IOException;
 
     /**
      * Perform a PUT-request against the given URL
@@ -108,7 +137,7 @@ public interface ClientInterface {
      * @return HTTP response
      * @throws IOException
      */
-    public Response put(URI url, InputStream input) throws IOException;
+    public ResponseInterface put(URI url, InputStream input) throws IOException;
 
     /**
      * Perform a PUT-request against the given URL
@@ -118,14 +147,14 @@ public interface ClientInterface {
      * @return HTTp response
      * @throws IOException
      */
-    public Response put(URI url, File file) throws IOException;
+    public ResponseInterface put(URI url, File file) throws IOException;
 
     /**
      * Set request headers to send along with the request
      *
-     * @param headers Linked list of headers to send
+     * @param headers Headers to send
      * @return This client instance
      */
-    public ClientInterface setRequestHeaders(LinkedList<Header> headers);
+    public ClientInterface setRequestHeaders(Header[] headers);
 
 }

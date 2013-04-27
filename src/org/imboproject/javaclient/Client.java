@@ -40,8 +40,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.imboproject.javaclient.Http.ResponseInterface;
 import org.imboproject.javaclient.Images.Image;
 import org.imboproject.javaclient.Images.QueryInterface;
@@ -53,6 +57,8 @@ import org.imboproject.javaclient.Url.UrlInterface;
 import org.imboproject.javaclient.Url.UserUrl;
 import org.imboproject.javaclient.util.Crypto;
 import org.imboproject.javaclient.util.TextUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -158,8 +164,6 @@ public class Client implements ClientInterface {
      * {@inheritDoc}
      */
     public ResponseInterface addImage(File image) throws IOException {
-        validateLocalFile(image);
-
         String imageIdentifier = getImageIdentifier(image);
         URI signedUrl = getSignedUrl("PUT", getImageUrl(imageIdentifier));
 
@@ -193,122 +197,207 @@ public class Client implements ClientInterface {
     /**
      * {@inheritDoc}
      */
-    public boolean imageExists(File image) {
-
-        return false;
+    public boolean imageExists(File image) throws IllegalArgumentException, IOException {
+        validateLocalFile(image);
+        
+        String imageIdentifier = getImageIdentifier(image);
+        
+        return this.imageExists(imageIdentifier);
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean imageExists(String imageIdentifier) {
-
-        return false;
+    public boolean imageExists(String imageIdentifier) throws IOException {
+        try {
+            this.headImage(imageIdentifier);
+        } catch (ServerException e) {
+            if (e.getErrorCode() == 404) {
+                return false;
+            }
+            
+            throw e;
+        }
+        
+        return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ResponseInterface headImage(String imageIdentifier) {
-
-        return null;
+    public ResponseInterface headImage(String imageIdentifier) throws IOException {
+        ImageUrl url = this.getImageUrl(imageIdentifier);
+        
+        return this.httpClient.head(url);
     }
 
     /**
      * {@inheritDoc}
      */
     public ResponseInterface deleteImage(String imageIdentifier) throws IOException {
-    	ImageUrl url  = this.getImageUrl(imageIdentifier);
-    	URI signedUrl = this.getSignedUrl("DELETE", url);
-    	
+        ImageUrl url  = this.getImageUrl(imageIdentifier);
+        URI signedUrl = this.getSignedUrl("DELETE", url);
+        
         return this.httpClient.delete(signedUrl);
     }
 
     /**
      * {@inheritDoc}
      */
-    public ResponseInterface editMetadata(String imageIdentifier, JSONObject metadata) {
+    public ResponseInterface editMetadata(String imageIdentifier, JSONObject metadata) throws IOException {
+        MetadataUrl url = this.getMetadataUrl(imageIdentifier);
+        URI signedUrl = this.getSignedUrl(org.imboproject.javaclient.Http.ClientInterface.POST, url);
 
-        return null;
+        String data = metadata.toString();
+        
+        Header[] headers = new Header[] {
+            new BasicHeader("Content-Type", "application/json"),
+            new BasicHeader("Content-Length", data.length() + ""),
+            new BasicHeader("Content-MD5", "@todo")
+        };
+        
+        return this.httpClient.post(signedUrl, data, headers);
     }
 
     /**
      * {@inheritDoc}
      */
-    public ResponseInterface replaceMetadata(String imageIdentifier, JSONObject metadata) {
+    public ResponseInterface replaceMetadata(String imageIdentifier, JSONObject metadata) throws IOException {
+        MetadataUrl url = this.getMetadataUrl(imageIdentifier);
+        URI signedUrl = this.getSignedUrl(org.imboproject.javaclient.Http.ClientInterface.PUT, url);
 
-        return null;
+        String data = metadata.toString();
+        
+        Header[] headers = new Header[] {
+            new BasicHeader("Content-Type", "application/json"),
+            new BasicHeader("Content-Length", data.length() + ""),
+            new BasicHeader("Content-MD5", "@todo")
+        };
+        
+        return this.httpClient.put(signedUrl, data, headers);
     }
 
     /**
      * {@inheritDoc}
      */
-    public ResponseInterface deleteMetadata(String imageIdentifier) {
+    public ResponseInterface deleteMetadata(String imageIdentifier) throws IOException {
+        MetadataUrl url = this.getMetadataUrl(imageIdentifier);
+        URI signedUrl = this.getSignedUrl(org.imboproject.javaclient.Http.ClientInterface.DELETE, url);
 
-        return null;
+        return this.httpClient.delete(signedUrl);
     }
 
     /**
      * {@inheritDoc}
      */
-    public JSONObject getMetadata(String imageIdentifier) {
+    public JSONObject getMetadata(String imageIdentifier) throws JSONException, IOException {
+        MetadataUrl url = this.getMetadataUrl(imageIdentifier);
+        
+        ResponseInterface response = this.httpClient.get(url);
 
-        return null;
+        JSONObject body = new JSONObject(response.getBody());
+
+        return body;
     }
 
     /**
      * {@inheritDoc}
      */
-    public int getNumberOfImages() {
+    public int getNumberOfImages() throws IOException, JSONException {
+        UserUrl url = this.getUserUrl();
+        ResponseInterface response = this.httpClient.get(url);
+        
+        JSONObject body = new JSONObject(response.getBody());
 
-        return 0;
+        return body.optInt("numImages", 42);
+    }
+
+    /**
+     * {@inheritDoc} 
+     */
+    public org.imboproject.javaclient.Images.Image[] getImages() throws IOException, JSONException {
+        return this.getImages(null);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @throws IOException 
+     * @throws JSONException 
+     */
+    public org.imboproject.javaclient.Images.Image[] getImages(QueryInterface query) throws IOException, JSONException {
+        ImagesUrl url = this.getImagesUrl();
+        HashMap<String, String> params = null;
+        
+        if (query != null) {
+            params = query.toHashMap();
+            
+            String key;
+            Iterator<String> keyIterator = params.keySet().iterator();
+            while (keyIterator.hasNext()) {
+                key = keyIterator.next();
+                url.addQueryParam(key, params.get(key));
+            }
+        }
+        
+        // Fetch the response
+        ResponseInterface response = this.httpClient.get(url.toUri());
+        JSONArray images = new JSONArray(response.getBody());
+        
+        LinkedList<Image> instances = new LinkedList<Image>();
+        for (int i = 0; i < images.length(); i++) {
+            instances.add(new Image(images.getJSONObject(i)));
+        }
+        
+        return instances.toArray(new Image[instances.size()]);
     }
 
     /**
      * {@inheritDoc}
      */
-    public org.imboproject.javaclient.Images.Image[] getImages() {
-
-        return null;
+    public byte[] getImageData(String imageIdentifier) throws IOException {
+        return this.getImageData(this.getImageUrl(imageIdentifier).toUri());
     }
 
     /**
      * {@inheritDoc}
      */
-    public org.imboproject.javaclient.Images.Image[] getImages(QueryInterface query) {
-
-        return null;
+    public byte[] getImageData(URI url) throws IOException {
+        ResponseInterface response = this.httpClient.get(url);
+        
+        return response.getRawBody();
     }
 
     /**
      * {@inheritDoc}
      */
-    public byte[] getImageData(String imageIdentifier) {
+    public Image getImageProperties(String imageIdentifier) throws IOException {
+        ResponseInterface response = this.headImage(imageIdentifier);
+        HashMap<String, String> headers = response.getHeaders();
 
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public byte[] getImageData(URI url) {
-
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Image getImageProperties(String imageIdentifier) {
-
-        return null;
+        JSONObject data = new JSONObject();
+        try {
+            data.put("imageIdentifier", imageIdentifier);
+            data.put("extension",       headers.get("x-imbo-originalextension"));
+            data.put("mime",            headers.get("x-imbo-originalmimetype"));
+            data.put("size",            Integer.parseInt(headers.get("x-imbo-originalfilesize")));
+            data.put("width",           Integer.parseInt(headers.get("x-imbo-originalwidth")));
+            data.put("height",          Integer.parseInt(headers.get("x-imbo-originalheight")));
+            
+        } catch (NumberFormatException e) {
+            
+        } catch (JSONException e) {
+            
+        }
+        
+        return new Image(data);
     }
 
     /**
      * {@inheritDoc}
      */
     public String getImageIdentifier(File file) throws IOException {
-        InputStream is = new FileInputStream(file);
+        validateLocalFile(file);
+    	InputStream is = new FileInputStream(file);
 
         return getImageIdentifier(is);
     }
@@ -370,26 +459,43 @@ public class Client implements ClientInterface {
     /**
      * {@inheritDoc}
      */
-    public JSONObject getServerStatus() {
+    public JSONObject getServerStatus() throws JSONException, IOException {
 
-        return null;
+    	StatusUrl url = this.getStatusUrl();
+    	ResponseInterface response;
+
+        try {
+           response = this.httpClient.get(url);
+        } catch (ServerException e) {
+            if (e.getErrorCode() == 500) {
+                response = e.getResponse();
+            } else {
+                // Re-throw same exception
+                throw e;
+            }
+        }
+
+        return new JSONObject(response.getBody());
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} 
      */
-    public JSONObject getUserInfo() {
-
-        return null;
+    public JSONObject getUserInfo() throws JSONException, IOException {
+    	UserUrl url = this.getUserUrl();
+    	
+    	ResponseInterface response = this.httpClient.get(url);
+    	
+        return new JSONObject(response.getBody());
     }
 
     /**
      * {@inheritDoc}
      */
     public ClientInterface setHttpClient(org.imboproject.javaclient.Http.ClientInterface client) {
-		this.httpClient = client;
+        this.httpClient = client;
 
-    	return this;
+        return this;
     }
 
     /**
@@ -403,9 +509,16 @@ public class Client implements ClientInterface {
     private String generateSignature(String method, String url, String timestamp) {
         String data = method + "|" + url + "|" + publicKey + "|" + timestamp;
 
-        return Crypto.hashHmacSha256(data, privateKey);
+        return Crypto.hashHmacSha256(data, this.privateKey);
     }
 
+    /**
+     * Get a signed URL
+     * 
+     * @param method HTTP method
+     * @param url The URL to send a request to
+     * @return Returns a URI with the necessary parts for authenticating
+     */
     private URI getSignedUrl(String method, UrlInterface url) {
         return getSignedUrl(method, url.toString());
     }
@@ -464,7 +577,7 @@ public class Client implements ClientInterface {
         for (String host : hosts) {
             host = normalizeUrl(host);
 
-            if (host == null || !urls.contains(host)) {
+            if (host != null && !urls.contains(host)) {
                 urls.add(host);
             }
         }
@@ -480,8 +593,8 @@ public class Client implements ClientInterface {
      */
     private String normalizeUrl(String url) {
         URI parsedUrl;
-
-        if (!url.matches("^https?://")) {
+        
+        if (!url.matches("^https?://.*")) {
             url = "http://" + url;
         }
 
@@ -490,15 +603,16 @@ public class Client implements ClientInterface {
         } catch (URISyntaxException e) {
             return null;
         }
-
+        
         // Remove the port from the server URL if it's equal to 80 when scheme is http, or if
         // it's equal to 443 when the scheme is https
         if (parsedUrl.getPort() != -1 && (
-                (parsedUrl.getScheme() == "http"  && parsedUrl.getPort() == 80) ||
-                (parsedUrl.getScheme() == "https" && parsedUrl.getPort() == 443)
+                (parsedUrl.getScheme().equals("http")  && parsedUrl.getPort() == 80) ||
+                (parsedUrl.getScheme().equals("https") && parsedUrl.getPort() == 443)
             )) {
             String path = parsedUrl.getPath();
-            url= parsedUrl.getScheme() + "://" + parsedUrl.getHost() + (path == null ? "" : path);
+
+            url = parsedUrl.getScheme() + "://" + parsedUrl.getHost() + path;
         }
 
         if (url.endsWith("/")) {

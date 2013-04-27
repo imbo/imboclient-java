@@ -69,7 +69,7 @@ public class Crypto {
             return "invalid-key-for-access-token-generation";
         }
 
-        final byte[] macData = algorithm.doFinal(charset.encode(data).array());
+        final byte[] macData = algorithm.doFinal(data.getBytes());
 
         String result = "";
         for (final byte element : macData) {

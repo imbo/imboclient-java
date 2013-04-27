@@ -34,6 +34,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -165,6 +166,53 @@ public class QueryTest {
         Date value = new Date();
         assertEquals(query, query.to(value));
         assertEquals(value, query.to());
+    }
+    
+    /**
+     * The query instance must be able to convert set values to
+     * a hashmap when all values have been specified
+     * 
+     * @throws JSONException 
+     */
+    @Test
+    public void testCanConvertToHashMapWithValues() throws JSONException {
+        Date from = new Date();
+    	query.from(from);
+    	
+    	query.limit(5);
+    	
+    	JSONObject metadataQuery = new JSONObject();
+    	metadataQuery.put("foo", "bar");
+    	query.metadataQuery(metadataQuery);
+    	
+    	query.page(3);
+    	query.returnMetadata(true);
+    	
+    	Date to = new Date();
+        query.to(to);
+        
+        HashMap<String, String> map = query.toHashMap();
+        assertEquals(Long.toString(from.getTime()), map.get("from"));
+        assertEquals("5", map.get("limit"));
+        assertEquals("{\"foo\":\"bar\"}", map.get("query"));
+        assertEquals("3", map.get("page"));
+        assertEquals("1", map.get("metadata"));
+        assertEquals(Long.toString(to.getTime()), map.get("to"));
+    }
+    
+    /**
+     * The query instance must be able to return a blank hashmap
+     * if no values have been set
+     * 
+     * @throws JSONException 
+     */
+    @Test
+    public void testCanConvertToHashMapWithNoValues() throws JSONException {
+        query.limit(0);
+        query.page(0);
+    	
+    	HashMap<String, String> map = query.toHashMap();
+        assertTrue(map.isEmpty());
     }
 
 }

@@ -29,6 +29,7 @@
 package org.imboproject.javaclient.Images;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import org.json.JSONObject;
 
@@ -157,6 +158,39 @@ public class Query implements QueryInterface {
     public QueryInterface to(Date to) {
         this.to = to;
         return this;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public HashMap<String, String> toHashMap() {
+    	HashMap<String, String> params = new HashMap<String, String>();
+    	
+    	if (this.page() > 0) {
+    		params.put("page", Integer.toString(this.page()));
+    	}
+    	
+    	if (this.limit() > 0) {
+    		params.put("limit", Integer.toString(this.limit()));
+    	}
+    	
+    	if (this.returnMetadata()) {
+    		params.put("metadata", "1");
+    	}
+    	
+    	if (this.from() != null) {
+    		params.put("from", Long.toString(this.from().getTime()));
+    	}
+    	
+    	if (this.to() != null) {
+    		params.put("to", Long.toString(this.to().getTime()));
+    	}
+    	
+    	if (this.metadataQuery() != null) {
+    		params.put("query", this.metadataQuery().toString());
+    	}
+    	
+    	return params;
     }
 
 }

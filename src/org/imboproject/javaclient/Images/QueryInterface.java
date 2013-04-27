@@ -29,6 +29,7 @@
 package org.imboproject.javaclient.Images;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import org.json.JSONObject;
 
@@ -128,5 +129,12 @@ public interface QueryInterface {
      * @return Returns this query instance
      */
     public QueryInterface to(Date to);
+    
+    /**
+     * Returns the parameters as a HashMap
+     * 
+     * @return HashMap of key => values
+     */
+    public HashMap<String, String> toHashMap();
 
 }

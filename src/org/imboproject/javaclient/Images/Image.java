@@ -70,7 +70,6 @@ public class Image implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String getIdentifier() {
         return identifier;
     }
@@ -78,7 +77,6 @@ public class Image implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public int getSize() {
         return size;
     }
@@ -86,7 +84,6 @@ public class Image implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String getExtension() {
         return extension;
     }
@@ -94,7 +91,6 @@ public class Image implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String getMimeType() {
         return mimeType;
     }
@@ -102,7 +98,6 @@ public class Image implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public Date getAddedDate() {
         return addedDate;
     }
@@ -110,7 +105,6 @@ public class Image implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public Date getUpdatedDate() {
         return updatedDate;
     }
@@ -118,7 +112,6 @@ public class Image implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public int getWidth() {
         return width;
     }
@@ -126,7 +119,6 @@ public class Image implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public int getHeight() {
         return height;
     }
@@ -134,7 +126,6 @@ public class Image implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String getChecksum() {
         return checksum;
     }
@@ -142,7 +133,6 @@ public class Image implements ImageInterface {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String getPublicKey() {
         return publicKey;
     }
@@ -176,7 +166,6 @@ public class Image implements ImageInterface {
         try {
             return dateFormat.parse(date);
         } catch (ParseException e) {
-            System.out.println(e.getMessage());
             return new Date();
         }
     }
