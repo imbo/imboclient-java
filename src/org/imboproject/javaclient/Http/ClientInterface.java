@@ -51,6 +51,27 @@ public interface ClientInterface {
 	public static final String HEAD = "HEAD";
 	public static final String POST = "POST";
 	public static final String DELETE = "DELETE";
+
+	/**
+     * Perform a POST-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param data Post-data to send
+     * @return HTTP response
+     * @throws IOException
+     */
+	public Response post(UrlInterface url, String data) throws IOException;
+	
+	/**
+     * Perform a POST-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param data Post-data to send
+     * @param headers Headers to send along with the request
+     * @return HTTP response
+     * @throws IOException
+     */
+	public Response post(UrlInterface url, String data, Header[] headers) throws IOException;
 	
 	/**
      * Perform a POST-request against the given URL
@@ -117,6 +138,15 @@ public interface ClientInterface {
      * @throws IOException
      */
     public ResponseInterface delete(URI url) throws IOException;
+    
+    /**
+     * Perform a DELETE-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @return HTTP response
+     * @throws IOException
+     */
+    public Response delete(UrlInterface url) throws IOException;
 
     /**
      * Perform a PUT-request against the given URL
@@ -138,16 +168,91 @@ public interface ClientInterface {
      * @throws IOException
      */
     public ResponseInterface put(URI url, InputStream input) throws IOException;
+    
+    /**
+     * Perform a PUT-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param input Input stream to use for reading PUT-data from
+     * @param headers Heades to send along with the request
+     * @return HTTP response
+     * @throws IOException
+     */
+    public Response put(URI url, InputStream input, Header[] headers) throws IOException;
 
     /**
      * Perform a PUT-request against the given URL
      *
      * @param url URL to perform request against
      * @param file File to send along with request
-     * @return HTTp response
+     * @return HTTP response
      * @throws IOException
      */
     public ResponseInterface put(URI url, File file) throws IOException;
+    
+    /**
+     * Perform a PUT-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param file File to send along with request
+     * @param headers Headers to send along with the request
+     * @return HTTP response
+     * @throws IOException
+     */
+    public ResponseInterface put(URI url, File file, Header[] headers) throws IOException;
+    
+    /**
+     * Perform a PUT-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param data Raw data to PUT, as String
+     * @param headers Headers to send along with the request
+     * @return HTTP response
+     * @throws IOException
+     */
+    public ResponseInterface put(UrlInterface url, String data, Header[] headers) throws IOException;
+
+    /**
+     * Perform a PUT-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param input Input stream to use for reading PUT-data from
+     * @return HTTP response
+     * @throws IOException
+     */
+    public ResponseInterface put(UrlInterface url, InputStream input) throws IOException;
+    
+    /**
+     * Perform a PUT-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param input Input stream to use for reading PUT-data from
+     * @param headers Headers to send along with the request
+     * @return HTTP response
+     * @throws IOException
+     */
+    public Response put(UrlInterface url, InputStream input, Header[] headers) throws IOException;
+
+    /**
+     * Perform a PUT-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param file File to send along with request
+     * @return HTTP response
+     * @throws IOException
+     */
+    public ResponseInterface put(UrlInterface url, File file) throws IOException;
+    
+    /**
+     * Perform a PUT-request against the given URL
+     *
+     * @param url URL to perform request against
+     * @param file File to send along with request
+     * @param headers Headers to send along with the request
+     * @return HTTP response
+     * @throws IOException
+     */
+    public Response put(UrlInterface url, File file, Header[] headers) throws IOException;
 
     /**
      * Set request headers to send along with the request
@@ -156,5 +261,12 @@ public interface ClientInterface {
      * @return This client instance
      */
     public ClientInterface setRequestHeaders(Header[] headers);
+    
+    /**
+     * Get request headers to send along with the request
+     *
+     * @return List of headers
+     */
+    public Header[] getRequestHeaders();
 
 }

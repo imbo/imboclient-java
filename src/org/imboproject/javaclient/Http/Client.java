@@ -28,6 +28,7 @@
  */
 package org.imboproject.javaclient.Http;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,12 +40,17 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -64,7 +70,7 @@ public class Client implements ClientInterface {
 	/**
 	 * Web client to use for requests
 	 */
-	private DefaultHttpClient webClient;
+	private HttpClient webClient;
 
 	/**
 	 * HTTP parameters to use for requests
@@ -74,7 +80,7 @@ public class Client implements ClientInterface {
 	/**
 	 * HTTP request headers
 	 */
-	private Header[] requestHeaders;
+	private Header[] requestHeaders = new Header[] {};
 
 	/**
 	 * Response handler for the web client
@@ -100,42 +106,19 @@ public class Client implements ClientInterface {
 	        return imboResponse;
 	    }
 	};
-
+	
 	/**
-	 * Constructs the HTTP client
-	 */
-	public Client() {
-		webClient = new DefaultHttpClient();
-
-		httpParams = new BasicHttpParams();
-		HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1);
-		HttpProtocolParams.setContentCharset(httpParams, "UTF_8");
-		HttpProtocolParams.setUseExpectContinue(httpParams, false);
-		HttpConnectionParams.setConnectionTimeout(httpParams, 20000);
-		HttpConnectionParams.setSoTimeout(httpParams, 20000);
-
-		webClient.setParams(httpParams);
+     * {@inheritDoc}
+     */
+	public Response post(UrlInterface url, String data) throws IOException {
+		return post(url, data, null);
 	}
-
+	
 	/**
-	 * Returns a set of HTTP parameters
-	 *
-	 * @return HTTP parameters
-	 */
-	public HttpParams getHttpParams() {
-		return httpParams;
-	}
-
-	/**
-	 * Set HTTP parameters
-	 *
-	 * @param params HTTP parameters to use for requests
-	 * @return HTTP client instance
-	 */
-	public ClientInterface setHttpParams(HttpParams params) {
-		webClient.setParams(params);
-
-		return this;
+     * {@inheritDoc}
+     */
+	public Response post(UrlInterface url, String data, Header[] headers) throws IOException {
+		return post(url.toUri(), data, headers);
 	}
 	
 	/**
@@ -156,14 +139,14 @@ public class Client implements ClientInterface {
     		post.setHeaders(headers);
     	}
     	
-    	return request(post);
+    	return this.request(post);
     }
 
     /**
      * {@inheritDoc}
      */
     public Response get(URI url) throws IOException {
-        return request(new HttpGet(url));
+        return this.request(new HttpGet(url));
     }
     
     /**
@@ -177,7 +160,7 @@ public class Client implements ClientInterface {
      * {@inheritDoc}
      */
     public Response head(URI url) throws IOException {
-    	return request(new HttpHead(url));
+    	return this.request(new HttpHead(url));
     }
     
     /**
@@ -191,36 +174,114 @@ public class Client implements ClientInterface {
      * {@inheritDoc}
      */
     public Response delete(URI url) throws IOException {
-        return null;
+        return this.request(new HttpDelete(url));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Response delete(UrlInterface url) throws IOException {
+        return this.delete(url.toUri());
     }
 
     /**
      * {@inheritDoc}
      */
     public Response put(URI url, String data) throws IOException {
-        return null;
+        return this.put(url, data, null);
     }
     
     /**
      * {@inheritDoc}
      */
 	public Response put(URI url, String data, Header[] headers) throws IOException {
-		return null;
+		HttpPut put = new HttpPut(url);
+		put.setEntity(new StringEntity(data));
+    	
+    	if (headers != null) {
+    		put.setHeaders(headers);
+    	}
+    	
+    	return this.request(put);
 	}
 
     /**
      * {@inheritDoc}
      */
     public Response put(URI url, InputStream input) throws IOException {
-
-    	return null;
+    	return this.put(url, input, null);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Response put(URI url, InputStream input, Header[] headers) throws IOException {
+    	byte[] data = readInputStream(input);
+    	
+    	HttpPut put = new HttpPut(url);
+		put.setEntity(new ByteArrayEntity(data));
+    	
+    	if (headers != null) {
+    		put.setHeaders(headers);
+    	}
+    	
+    	return this.request(put);
     }
 
     /**
      * {@inheritDoc}
      */
     public Response put(URI url, File file) throws IOException {
-        return put(url, new FileInputStream(file));
+        return this.put(url, file, null);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Response put(URI url, File file, Header[] headers) throws IOException {
+        return this.put(url, new FileInputStream(file));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Response put(UrlInterface url, String data) throws IOException {
+        return this.put(url.toUri(), data, null);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+	public Response put(UrlInterface url, String data, Header[] headers) throws IOException {
+		return this.put(url.toUri(), data, headers);
+	}
+
+    /**
+     * {@inheritDoc}
+     */
+    public Response put(UrlInterface url, InputStream input) throws IOException {
+    	return this.put(url.toUri(), input, null);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Response put(UrlInterface url, InputStream input, Header[] headers) throws IOException {
+    	return this.put(url.toUri(), input, headers);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Response put(UrlInterface url, File file) throws IOException {
+        return this.put(url, file, null);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Response put(UrlInterface url, File file, Header[] headers) throws IOException {
+        return this.put(url.toUri(), file, headers);
     }
 
     /**
@@ -231,6 +292,47 @@ public class Client implements ClientInterface {
 
     	return this;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Header[] getRequestHeaders() {
+        return this.requestHeaders;
+    }
+    
+	/**
+	 * Returns a set of HTTP parameters
+	 *
+	 * @return HTTP parameters
+	 */
+	public HttpClient getHttpClient() {
+		if (webClient == null) {
+			this.setHttpClient(getDefaultHttpClient());
+		}
+		
+		return webClient;
+	}
+
+	/**
+	 * Set HTTP parameters
+	 *
+	 * @param params HTTP parameters to use for requests
+	 * @return HTTP client instance
+	 */
+	public ClientInterface setHttpClient(HttpClient httpClient) {
+		webClient = httpClient;
+
+		return this;
+	}
+	
+	/**
+	 * Get the default response handler
+	 * 
+	 * @return Default response handler
+	 */
+	public ResponseHandler<Response> getResponseHandler() {
+		return defaultHandler;
+	}
 
     /**
      * Perform a request of the given HTTP method against the given URL
@@ -245,7 +347,7 @@ public class Client implements ClientInterface {
     	}
 
     	// Perform request using default handler
-    	Response response = webClient.execute(request, defaultHandler);
+    	Response response = getHttpClient().execute(request, defaultHandler);
 
     	// Check for errors and throw exception if encountering any
     	if (response.isError()) {
@@ -260,6 +362,45 @@ public class Client implements ClientInterface {
 
     	// Return response
     	return response;
+    }
+    
+    /**
+     * Get a default HTTP client
+     * 
+     * @return Default HTTP params with some basic options set
+     */
+    protected HttpClient getDefaultHttpClient() {
+    	httpParams = new BasicHttpParams();
+		HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1);
+		HttpProtocolParams.setContentCharset(httpParams, "UTF_8");
+		HttpProtocolParams.setUseExpectContinue(httpParams, false);
+		HttpConnectionParams.setConnectionTimeout(httpParams, 20000);
+		HttpConnectionParams.setSoTimeout(httpParams, 20000);
+		
+		AbstractHttpClient client = new DefaultHttpClient();
+		client.setParams(httpParams);
+		
+		return client;
+    }
+    
+    /**
+     * Read input stream into a byte array
+     * 
+     * @param input Input stream to read from
+     * @return Byte array with the contents of the input stream
+     * @throws IOException
+     */
+    protected byte[] readInputStream(InputStream input) throws IOException {
+    	ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+    	int read;
+    	byte[] data = new byte[16384];
+
+    	while ((read = input.read(data, 0, data.length)) != -1) {
+    		buffer.write(data, 0, read);
+    	}
+
+    	return buffer.toByteArray();
     }
 
 }
