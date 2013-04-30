@@ -31,7 +31,6 @@ package org.imboproject.javaclient.Http;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.imboproject.javaclient.util.PostBodyMatches.PostBodyMatches;
-import static org.imboproject.javaclient.util.PutBodyMatches.PutBodyMatches;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
