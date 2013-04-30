@@ -433,9 +433,5 @@ public class ClientTest {
     private static <T> org.hamcrest.Matcher<HttpPost> postBodyMatches(String postBody) {
         return PostBodyMatches(postBody);
     }
-    
-    private static <T> org.hamcrest.Matcher<HttpPut> putBodyMatches(byte[] putBody) {
-        return PutBodyMatches(putBody);
-    }
 
 }

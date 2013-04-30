@@ -1,3 +1,5 @@
 .settings
 bin
 *.class
+target/surefire-reports/*
+target/maven-archiver/pom.properties
