@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.TimeZone;
 
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
@@ -543,6 +544,8 @@ public class Client implements ClientInterface {
      */
     private URI getSignedUrl(String method, String url) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
         String timestamp = df.format(new Date());
         String signature = generateSignature(method, url, timestamp);
 
