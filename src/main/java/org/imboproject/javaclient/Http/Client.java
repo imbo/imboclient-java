@@ -50,7 +50,6 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -89,17 +88,24 @@ public class Client implements ClientInterface {
 	    public Response handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
 	        Response imboResponse = new Response();
 
-	    	HttpEntity entity = response.getEntity();
-	        Header contentType = entity.getContentType();
-
+	    	HttpEntity entity    = response.getEntity();
+	        Header contentType   = response.getFirstHeader("Content-Type");
+	        Header contentLength = response.getFirstHeader("Content-Length");
+	        
 	        imboResponse.setStatusCode(response.getStatusLine().getStatusCode());
-	        imboResponse.setContentType(contentType.getValue());
-	        imboResponse.setContentLength(entity.getContentLength());
 	        imboResponse.setHeaders(response.getAllHeaders());
+	        
+	        if (contentType != null) {
+	        	imboResponse.setContentType(contentType.getValue().split(";")[0].trim());
+	        }
+	        
+	        if (contentLength != null) {
+	        	imboResponse.setContentLength(Long.parseLong(contentLength.getValue()));
+	        }
 
 	        if (contentType.getValue().startsWith("image/")) {
 	        	imboResponse.setRawBody(EntityUtils.toByteArray(entity));
-	        } else {
+	        } else if (entity != null) {
 	        	imboResponse.setBody(EntityUtils.toString(entity));
 	        }
 
@@ -353,7 +359,7 @@ public class Client implements ClientInterface {
     	if (response.isError()) {
     		ServerException exception = new ServerException(
 				response.getImboErrorDescription(),
-				response.getImboErrorCode()
+				response.getStatusCode()
 			);
     		exception.setResponse(response);
 
@@ -377,7 +383,7 @@ public class Client implements ClientInterface {
 		HttpConnectionParams.setConnectionTimeout(httpParams, 20000);
 		HttpConnectionParams.setSoTimeout(httpParams, 20000);
 		
-		AbstractHttpClient client = new DefaultHttpClient();
+		DefaultHttpClient client = new DefaultHttpClient();
 		client.setParams(httpParams);
 		
 		return client;
