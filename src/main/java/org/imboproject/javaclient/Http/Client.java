@@ -103,7 +103,7 @@ public class Client implements ClientInterface {
                 imboResponse.setContentLength(Long.parseLong(contentLength.getValue()));
             }
 
-            if (contentType.getValue().startsWith("image/")) {
+            if (entity != null && contentType.getValue().startsWith("image/")) {
                 imboResponse.setRawBody(EntityUtils.toByteArray(entity));
             } else if (entity != null) {
                 imboResponse.setBody(EntityUtils.toString(entity));
