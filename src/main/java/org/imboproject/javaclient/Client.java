@@ -228,7 +228,7 @@ public class Client implements ClientInterface {
     public ResponseInterface headImage(String imageIdentifier) throws IOException {
         ImageUrl url = this.getImageUrl(imageIdentifier);
         
-        return this.httpClient.head(url);
+        return this.getHttpClient().head(url);
     }
 
     /**
@@ -238,7 +238,7 @@ public class Client implements ClientInterface {
         ImageUrl url  = this.getImageUrl(imageIdentifier);
         URI signedUrl = this.getSignedUrl("DELETE", url);
         
-        return this.httpClient.delete(signedUrl);
+        return this.getHttpClient().delete(signedUrl);
     }
 
     /**
@@ -256,7 +256,7 @@ public class Client implements ClientInterface {
             new BasicHeader("Content-MD5", "@todo")
         };
         
-        return this.httpClient.post(signedUrl, data, headers);
+        return this.getHttpClient().post(signedUrl, data, headers);
     }
 
     /**
@@ -274,7 +274,7 @@ public class Client implements ClientInterface {
             new BasicHeader("Content-MD5", "@todo")
         };
         
-        return this.httpClient.put(signedUrl, data, headers);
+        return this.getHttpClient().put(signedUrl, data, headers);
     }
 
     /**
@@ -284,7 +284,7 @@ public class Client implements ClientInterface {
         MetadataUrl url = this.getMetadataUrl(imageIdentifier);
         URI signedUrl = this.getSignedUrl(org.imboproject.javaclient.Http.ClientInterface.DELETE, url);
 
-        return this.httpClient.delete(signedUrl);
+        return this.getHttpClient().delete(signedUrl);
     }
 
     /**
@@ -293,7 +293,7 @@ public class Client implements ClientInterface {
     public JSONObject getMetadata(String imageIdentifier) throws JSONException, IOException {
         MetadataUrl url = this.getMetadataUrl(imageIdentifier);
         
-        ResponseInterface response = this.httpClient.get(url);
+        ResponseInterface response = this.getHttpClient().get(url);
 
         JSONObject body = new JSONObject(response.getBody());
 
@@ -305,7 +305,7 @@ public class Client implements ClientInterface {
      */
     public int getNumberOfImages() throws IOException, JSONException {
         UserUrl url = this.getUserUrl();
-        ResponseInterface response = this.httpClient.get(url);
+        ResponseInterface response = this.getHttpClient().get(url);
         
         JSONObject body = new JSONObject(response.getBody());
 
@@ -340,7 +340,7 @@ public class Client implements ClientInterface {
         }
         
         // Fetch the response
-        ResponseInterface response = this.httpClient.get(url.toUri());
+        ResponseInterface response = this.getHttpClient().get(url.toUri());
         JSONArray images = new JSONArray(response.getBody());
         
         LinkedList<Image> instances = new LinkedList<Image>();
@@ -362,7 +362,7 @@ public class Client implements ClientInterface {
      * {@inheritDoc}
      */
     public byte[] getImageData(URI url) throws IOException {
-        ResponseInterface response = this.httpClient.get(url);
+        ResponseInterface response = this.getHttpClient().get(url);
         
         return response.getRawBody();
     }
@@ -465,7 +465,7 @@ public class Client implements ClientInterface {
     	ResponseInterface response;
 
         try {
-           response = this.httpClient.get(url);
+           response = this.getHttpClient().get(url);
         } catch (ServerException e) {
             if (e.getErrorCode() == 500) {
                 response = e.getResponse();
@@ -484,7 +484,7 @@ public class Client implements ClientInterface {
     public JSONObject getUserInfo() throws JSONException, IOException {
     	UserUrl url = this.getUserUrl();
     	
-    	ResponseInterface response = this.httpClient.get(url);
+    	ResponseInterface response = this.getHttpClient().get(url);
     	
         return new JSONObject(response.getBody());
     }
@@ -496,6 +496,17 @@ public class Client implements ClientInterface {
         this.httpClient = client;
 
         return this;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public org.imboproject.javaclient.Http.ClientInterface getHttpClient() {
+    	if (this.httpClient == null) {
+    		this.setHttpClient(new org.imboproject.javaclient.Http.Client());
+    	}
+    	
+    	return this.httpClient;
     }
 
     /**
