@@ -186,7 +186,7 @@ public class Image implements ImageInterface {
         publicKey  = data.optString("publicKey", null);
 
         setAddedDate(data.optString("added", ""));
-        setUpdatedDate(data.optString("added", ""));
+        setUpdatedDate(data.optString("updated", ""));
     }
 
 }

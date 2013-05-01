@@ -31,6 +31,7 @@ package org.imboproject.javaclient.Images;
 import static org.junit.Assert.assertEquals;
 
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,7 +61,7 @@ public class ImageTest {
         data.put("height", 480);
         data.put("checksum", "995b506ba1772e6a3fa25a2e3e618b08");
         data.put("publicKey", "testsuite");
-        data.put("updated", "Thu, 15 Nov 2012 15:44:49 GMT");
+        data.put("updated", "Thu, 01 May 2013 11:49:48 CET");
 
         image = new Image(data);
     }
@@ -108,7 +109,9 @@ public class ImageTest {
     @Test
     public void testCanGetAddedDateAsDateInstanceAfterBeingPopulatedThroughConstructorAsFormattedString() {
         SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
-        assertEquals("2012-11-15 04:44:49 CET", dt.format(image.getAddedDate()));
+        dt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
+        assertEquals("2012-11-15 03:44:49 UTC", dt.format(image.getAddedDate()));
     }
 
     /**
@@ -117,7 +120,9 @@ public class ImageTest {
     @Test
     public void testCanGetUpdatedDateAsDatetimeInstanceAfterBeingPopulatedThroughConstructorAsFormattedString() {
         SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
-        assertEquals("2012-11-15 04:44:49 CET", dt.format(image.getUpdatedDate()));
+        dt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
+        assertEquals("2013-05-01 10:49:48 UTC", dt.format(image.getUpdatedDate()));
     }
 
     /**
