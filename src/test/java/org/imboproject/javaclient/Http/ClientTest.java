@@ -297,18 +297,25 @@ public class ClientTest {
     public void testResponeHandlerHandlesImagesProperly() throws IOException, URISyntaxException {
     	final HttpResponse response = getResponseMock();
         final HttpEntity entity = getEntityMock();
-        final BasicHeader contentType = new BasicHeader("Content-Type", "image/jpg");
         final String content = "foo";
+        final BasicHeader contentType = new BasicHeader("Content-Type", "image/jpg");
+        final BasicHeader contentLength = new BasicHeader("Content-Length", content.length() + "");
         final ByteArrayInputStream entityStream = new ByteArrayInputStream(content.getBytes());
         final StatusLine statusLine = new StatusLine() {
 			public int getStatusCode() { return 200; }
 			public String getReasonPhrase() { return null; }
 			public ProtocolVersion getProtocolVersion() { return null; }
 		};
-        
+		
         context.checking(new Expectations() {{
-            atLeast(1).of(entity).getContentType();
+            atLeast(1).of(response).getFirstHeader("Content-Type");
             will(returnValue(contentType));
+            
+            atLeast(1).of(response).getLastHeader("Content-Length");
+            will(returnValue(contentLength));
+            
+            atLeast(1).of(response).getEntity();
+            will(returnValue(entity));
             
             atLeast(1).of(entity).getContentLength();
             will(returnValue((long) content.length()));
@@ -318,9 +325,6 @@ public class ClientTest {
         	
             atLeast(1).of(response).getStatusLine();
             will(returnValue(statusLine));
-            
-        	atLeast(1).of(response).getEntity();
-            will(returnValue(entity));
             
             oneOf(response).getAllHeaders();
             will(returnValue(new Header[] { contentType }));
@@ -342,8 +346,9 @@ public class ClientTest {
     public void testResponseHandlerHandlesJsonRequests() throws IOException, URISyntaxException {
     	final HttpResponse response = getResponseMock();
         final HttpEntity entity = getEntityMock();
-        final BasicHeader contentType = new BasicHeader("Content-Type", "application/json");
         final String content = "{\"foo\":\"bar\"}";
+        final BasicHeader contentType = new BasicHeader("Content-Type", "application/json");
+        final BasicHeader contentLength = new BasicHeader("Content-Length", content.length() + "");
         final ByteArrayInputStream entityStream = new ByteArrayInputStream(content.getBytes());
         final StatusLine statusLine = new StatusLine() {
 			public int getStatusCode() { return 200; }
@@ -352,8 +357,14 @@ public class ClientTest {
 		};
         
         context.checking(new Expectations() {{
-            atLeast(1).of(entity).getContentType();
+        	atLeast(1).of(response).getFirstHeader("Content-Type");
             will(returnValue(contentType));
+            
+            atLeast(1).of(response).getLastHeader("Content-Length");
+            will(returnValue(contentLength));
+            
+            atLeast(1).of(response).getEntity();
+            will(returnValue(entity));
             
             atLeast(1).of(entity).getContentLength();
             will(returnValue((long) content.length()));
@@ -364,8 +375,8 @@ public class ClientTest {
             atLeast(1).of(response).getStatusLine();
             will(returnValue(statusLine));
             
-        	atLeast(1).of(response).getEntity();
-            will(returnValue(entity));
+            atLeast(1).of(entity).getContentType();
+            will(returnValue(contentType));
             
             oneOf(response).getAllHeaders();
             will(returnValue(new Header[] { contentType }));
