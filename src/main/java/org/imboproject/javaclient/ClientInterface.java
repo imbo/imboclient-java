@@ -306,5 +306,12 @@ public interface ClientInterface {
      * @return Returns this instance of the Imbo client
      */
     public ClientInterface setHttpClient(org.imboproject.javaclient.Http.ClientInterface client);
+    
+    /**
+     * Get the HTTP client to be used for requests
+     * 
+     * @return HTTP client
+     */
+    public org.imboproject.javaclient.Http.ClientInterface getHttpClient();
 
 }
