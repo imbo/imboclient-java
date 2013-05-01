@@ -30,6 +30,8 @@ package org.imboproject.javaclient.Images;
 
 import static org.junit.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
@@ -105,7 +107,8 @@ public class ImageTest {
      */
     @Test
     public void testCanGetAddedDateAsDateInstanceAfterBeingPopulatedThroughConstructorAsFormattedString() {
-        assertEquals("Thu Nov 15 16:44:49 CET 2012", image.getAddedDate().toString());
+        SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
+        assertEquals("2012-11-15 04:44:49 CET", dt.format(image.getAddedDate()));
     }
 
     /**
@@ -113,7 +116,8 @@ public class ImageTest {
      */
     @Test
     public void testCanGetUpdatedDateAsDatetimeInstanceAfterBeingPopulatedThroughConstructorAsFormattedString() {
-        assertEquals("Thu Nov 15 16:44:49 CET 2012", image.getUpdatedDate().toString());
+        SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
+        assertEquals("2012-11-15 04:44:49 CET", dt.format(image.getUpdatedDate()));
     }
 
     /**
