@@ -1,30 +1,10 @@
 /**
- * ImboClient-java
+ * This file is part of the imboclient-java package
  *
- * Copyright (c) 2012, Espen Hovlandsdal <espen@hovlandsdal.com>
+ * (c) Espen Hovlandsdal <espen@hovlandsdal.com>
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * * The above copyright notice and this permission notice shall be included in
- *   all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>
- * @copyright Copyright (c) 2012, Espen Hovlandsdal <espen@hovlandsdal.com>
- * @license http://www.opensource.org/licenses/mit-license MIT License
- * @link https://github.com/rexxars/imboclient-java
+ * For the full copyright and license information, please view the LICENSE file that was
+ * distributed with this source code.
  */
 package org.imboproject.javaclient;
 
@@ -168,7 +148,7 @@ public class Client implements ClientInterface {
         String imageIdentifier = getImageIdentifier(image);
         URI signedUrl = getSignedUrl("PUT", getImageUrl(imageIdentifier));
 
-        return httpClient.put(signedUrl, image);
+        return this.getHttpClient().put(signedUrl, image);
     }
 
     /**
@@ -183,17 +163,25 @@ public class Client implements ClientInterface {
         URI signedUrl = getSignedUrl("PUT", getImageUrl(imageIdentifier));
         ByteArrayInputStream buffer = new ByteArrayInputStream(bytes);
 
-        return httpClient.put(signedUrl, buffer);
+        return this.getHttpClient().put(signedUrl, buffer);
     }
 
     /**
      * {@inheritDoc}
      */
     public ResponseInterface addImageFromUrl(URI url) throws IOException {
-        ResponseInterface response = httpClient.get(url);
+        ResponseInterface response = this.getHttpClient().get(url);
 
         return addImage(response.getRawBody());
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+	public ResponseInterface addImageFromUrl(UrlInterface url) throws IOException {
+    	return addImageFromUrl(url.toUri());
+	}
 
     /**
      * {@inheritDoc}
@@ -253,8 +241,6 @@ public class Client implements ClientInterface {
         
         Header[] headers = new Header[] {
             new BasicHeader("Content-Type", "application/json"),
-            new BasicHeader("Content-Length", data.length() + ""),
-            new BasicHeader("Content-MD5", "@todo")
         };
         
         return this.getHttpClient().post(signedUrl, data, headers);
@@ -271,8 +257,6 @@ public class Client implements ClientInterface {
         
         Header[] headers = new Header[] {
             new BasicHeader("Content-Type", "application/json"),
-            new BasicHeader("Content-Length", data.length() + ""),
-            new BasicHeader("Content-MD5", "@todo")
         };
         
         return this.getHttpClient().put(signedUrl, data, headers);
@@ -374,15 +358,15 @@ public class Client implements ClientInterface {
     public Image getImageProperties(String imageIdentifier) throws IOException {
         ResponseInterface response = this.headImage(imageIdentifier);
         HashMap<String, String> headers = response.getHeaders();
-
+        
         JSONObject data = new JSONObject();
         try {
             data.put("imageIdentifier", imageIdentifier);
-            data.put("extension",       headers.get("x-imbo-originalextension"));
-            data.put("mime",            headers.get("x-imbo-originalmimetype"));
-            data.put("size",            Integer.parseInt(headers.get("x-imbo-originalfilesize")));
-            data.put("width",           Integer.parseInt(headers.get("x-imbo-originalwidth")));
-            data.put("height",          Integer.parseInt(headers.get("x-imbo-originalheight")));
+            data.put("extension",       headers.get("X-Imbo-OriginalExtension"));
+            data.put("mime",            headers.get("X-Imbo-OriginalMimeType"));
+            data.put("size",            Integer.parseInt(headers.get("X-Imbo-OriginalFileSize")));
+            data.put("width",           Integer.parseInt(headers.get("X-Imbo-OriginalWidth")));
+            data.put("height",          Integer.parseInt(headers.get("X-Imbo-OriginalHeight")));
             
         } catch (NumberFormatException e) {
             

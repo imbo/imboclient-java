@@ -1,13 +1,13 @@
-package org.imboproject.javaclient.util;
-
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-
 /**
  * Regex matcher for Hamcrest
  *
  * @author Piotr Gabryanczyk <http://piotrga.wordpress.com/2009/03/27/hamcrest-regex-matcher/>
  */
+package org.imboproject.javaclient.util;
+
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+
 public class RegexMatcher extends BaseMatcher<String> {
     private final String regex;
 
