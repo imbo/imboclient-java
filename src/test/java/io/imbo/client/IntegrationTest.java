@@ -8,8 +8,6 @@
  */
 package io.imbo.client;
 
-import io.imbo.client.ImboClient;
-import io.imbo.client.ServerException;
 import io.imbo.client.Http.Response;
 import io.imbo.client.Images.Image;
 import io.imbo.client.Images.ImagesResponse;
