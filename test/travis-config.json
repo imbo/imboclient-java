@@ -1,0 +1,5 @@
+{
+    "host": "http://localhost:9012",
+    "publicKey": "test",
+    "privateKey": "test"
+}

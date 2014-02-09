@@ -4,7 +4,7 @@
     <groupId>org.imboproject.javaclient</groupId>
     <artifactId>imboclient-java</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>imboclient-java</name>
     <url>http://imbo-project.org/</url>
 
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.2</version>
+            <version>4.11</version>
             <scope>test</scope>
         </dependency>
 
