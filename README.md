@@ -28,7 +28,7 @@ String imageIdentifier = "61da9892205a0d5077a353eb3487e8c8";
 // Add some meta data to the image
 JSONObject metadata = new JSONObject();
 metadata.put("foo", "bar");
-metadata.put("time", now);
+metadata.put("time", System.currentTimeMillis());
 
 client.replaceMetadata(imageIdentifier, metadata);
 ```
@@ -70,7 +70,7 @@ ImboClient client = new ImboClient("http://<hostname>", "<publicKey>", "<private
 String imageIdentifier = "61da9892205a0d5077a353eb3487e8c8";
 
 // Generate an image URL and add some transformations
-ImageUrl imageUrl = client.getImageUrl(imageIdentifier).maxSize(320, 240).border('f00baa', 2, 2).png();
+ImageUrl imageUrl = client.getImageUrl(imageIdentifier).maxSize(320, 240).border("f00b", 2, 2).png();
 
 // Print transformed URL
 System.out.println(imageUrl.toString());
@@ -82,7 +82,7 @@ The transformations that can be chained are:
 
 Add a border around the image.
 
-* `(String) color` Color in hexadecimal. Defaults to '000000' (also supports short values like 'f00' ('ff0000')).
+* `(String) color` Color in hexadecimal. Defaults to "000000" (also supports short values like "f00" ("ff0000")).
 * `(int) width` Width of the border on the left and right sides of the image. Defaults to 1.
 * `(int) height` Height of the border on the top and bottom sides of the image. Defaults to 1.
 
@@ -92,7 +92,7 @@ Builds a new canvas and allows easy positioning of the original image within it.
 
 * `(int) width` Width of the new canvas.
 * `(int) height` Height of the new canvas.
-* `(String) mode` Placement mode. 'free' (uses `x` and `y`), 'center', 'center-x' (centers horizontally, uses `y` for vertical placement), 'center-y' (centers vertically, uses `x` for horizontal placement). Default to 'free'.
+* `(String) mode` Placement mode. "free" (uses `x` and `y`), "center", "center-x" (centers horizontally, uses `y` for vertical placement), "center-y" (centers vertically, uses `x` for horizontal placement). Default to "free".
 * `(int) x` X coordinate of the placement of the upper left corner of the existing image.
 * `(int) y` Y coordinate of the placement of the upper left corner of the existing image.
 * `(String) bg` Background color of the canvas.
@@ -107,7 +107,7 @@ Compress the image on the fly.
 
 Converts the image to another type.
 
-* `(String) type` The type to convert to. Supported types are: 'gif', 'jpg' and 'png'.
+* `(String) type` The type to convert to. Supported types are: "gif", "jpg" and "png".
 
 **crop()**
 
@@ -132,11 +132,11 @@ Flip the image vertically.
 
 **gif()**
 
-Proxies to `convert('gif')`.
+Proxies to `convert("gif")`.
 
 **jpg()**
 
-Proxies to `convert('jpg')`.
+Proxies to `convert("jpg")`.
 
 **maxSize()**
 
@@ -147,7 +147,7 @@ Resize the image using the original aspect ratio.
 
 **png()**
 
-Proxies to `convert('png')`.
+Proxies to `convert("png")`.
 
 **resize()**
 
@@ -161,7 +161,7 @@ Resize the image. Two parameters are supported and at least one of them must be 
 Rotate the image.
 
 * `(int) angle` The number of degrees to rotate the image.
-* `(String) bg` Background color in hexadecimal. Defaults to '000000' (also supports short values like 'f00' ('ff0000')).
+* `(String) bg` Background color in hexadecimal. Defaults to "000000" (also supports short values like "f00" ("ff0000")).
 
 **sepia()**
 
@@ -175,7 +175,7 @@ Generate a thumbnail of the image.
 
 * `(int) width` Width of the thumbnail. Defaults to 50.
 * `(int) height` Height of the thumbnail. Defaults to 50.
-* `(String) fit` Fit style. 'inset' or 'outbound'. Default to 'outbound'.
+* `(String) fit` Fit style. "inset" or "outbound". Default to "outbound".
 
 **transpose()**
 
