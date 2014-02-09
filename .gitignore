@@ -3,4 +3,4 @@ bin
 *.class
 target/surefire-reports/*
 target/maven-archiver/pom.properties
-misc/config.json
+misc/test-config.json

@@ -60,7 +60,7 @@ public class IntegrationTest extends TestCase {
     	JSONObject config = null;
     	
     	try {
-    		File configFile = new File("misc/config.json");
+    		File configFile = new File("misc/test-config.json");
 			Scanner scanner = new Scanner(configFile, "UTF-8");
     		String json = scanner.useDelimiter("\\A").next();
     		scanner.close();
