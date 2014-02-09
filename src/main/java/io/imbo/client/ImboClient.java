@@ -39,7 +39,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.http.Header;
@@ -168,6 +167,8 @@ public class ImboClient {
      * @throws IOException
      */
     public Response addImage(File image) throws IOException {
+        validateLocalFile(image);
+        
         URI signedUrl = getSignedUrl("POST", getImagesUrl());
 
         return this.getHttpClient().post(signedUrl, image);
@@ -185,11 +186,10 @@ public class ImboClient {
             throw new IllegalArgumentException("Byte array is empty");
         }
 
-        String imageIdentifier = getImageChecksum(bytes);
-        URI signedUrl = getSignedUrl("PUT", getImageUrl(imageIdentifier));
+        URI signedUrl = getSignedUrl("POST", getImagesUrl());
         ByteArrayInputStream buffer = new ByteArrayInputStream(bytes);
 
-        return this.getHttpClient().put(signedUrl, buffer);
+        return this.getHttpClient().post(signedUrl, buffer);
     }
 
     /**
@@ -215,23 +215,6 @@ public class ImboClient {
 	public Response addImageFromUrl(Url url) throws IOException {
     	return addImageFromUrl(url.toUri());
 	}
-
-    /**
-     * Checks if a given image exists on the server already by specifying a local image
-     *
-     * @param image Image you want to check if exists
-     * @return True if image exists on server, false otherwise
-     * @throws FileNotFoundException 
-     * @throws IllegalArgumentException 
-     * @throws IOException 
-     */
-    public boolean imageExists(File image) throws IllegalArgumentException, IOException {
-        validateLocalFile(image);
-        
-        String checksum = getImageChecksum(image);
-        
-        return this.imageWithChecksumExists(checksum);
-    }
 
     /**
      * Checks if a given image exists on the server already by specifying an image identifier

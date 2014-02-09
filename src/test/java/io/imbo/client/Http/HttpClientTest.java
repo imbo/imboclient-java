@@ -14,8 +14,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import io.imbo.client.ServerException;
-import io.imbo.client.Http.ImboHttpClient;
-import io.imbo.client.Http.ImboResponse;
 import io.imbo.client.Url.StatusUrl;
 
 import java.io.ByteArrayInputStream;
@@ -23,7 +21,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -89,26 +89,24 @@ public class HttpClientTest {
      */
     @Test
     public void testCanSetAndGetRequestHeaders() {
-        Header foo = new BasicHeader("foo", "bar");
-        Header bar = new BasicHeader("bar", "foo");
-        Header[] headers = new Header[] {
-            foo,
-            bar
-        };
+        ArrayList<Header> headers = new ArrayList<Header>();
+        headers.add(new BasicHeader("foo", "bar"));
+        headers.add(new BasicHeader("bar", "foo"));
         
         assertEquals(client, client.setRequestHeaders(headers));
         
-        Header[] reqHeaders = client.getRequestHeaders();
-        assertEquals(headers.length, reqHeaders.length);
+        List<Header> reqHeaders = client.getRequestHeaders();
+        assertEquals(headers.size(), reqHeaders.size());
         
-        for (int i = 0; i < headers.length; i++) {
-            assertEquals(headers[i], reqHeaders[i]);
+        for (int i = 0; i < headers.size(); i++) {
+            assertEquals(headers.get(i), reqHeaders.get(i));
         }
     }
     
     /**
      * The response class must be able to get an HTTP resource
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testCanGetHttpResource() throws IOException, URISyntaxException {
         useMockWebClient();
@@ -122,6 +120,7 @@ public class HttpClientTest {
         this.client.get(new URI("http://imbo-project.org/"));
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testCanGetHttpResourceWithAnUrlClass() throws IOException, URISyntaxException {
         useMockWebClient();
@@ -135,6 +134,7 @@ public class HttpClientTest {
         this.client.get(new StatusUrl("http://imbo/"));
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testCanHeadHttpResource() throws IOException, URISyntaxException {
         useMockWebClient();
@@ -148,6 +148,7 @@ public class HttpClientTest {
         this.client.head(new URI("http://imbo-project.org/"));
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testCanHeadHttpResourceWithAnUrlClass() throws IOException, URISyntaxException {
         useMockWebClient();
@@ -161,6 +162,7 @@ public class HttpClientTest {
         this.client.head(new StatusUrl("http://imbo"));
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testCanDeleteHttpResource() throws IOException, URISyntaxException {
         useMockWebClient();
@@ -174,6 +176,7 @@ public class HttpClientTest {
         this.client.delete(new URI("http://imbo-project.org/"));
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testCanDeleteHttpResourceWithAnUrlClass() throws IOException, URISyntaxException {
         useMockWebClient();
@@ -187,6 +190,7 @@ public class HttpClientTest {
         this.client.delete(new StatusUrl("http://imbo"));
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testCanPostHttpResource() throws IOException, URISyntaxException {
         useMockWebClient();
@@ -203,14 +207,14 @@ public class HttpClientTest {
         this.client.post(new URI("http://imbo-project.org/"), "payload");
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testCanPostHttpResourceWithAnUrlClass() throws IOException, URISyntaxException {
         useMockWebClient();
         final ImboResponse response = new ImboResponse();
         final String body = "{\"foo\":\"bar\"}";
-        final Header[] headers = new Header[] {
-        	new BasicHeader("Content-Type", "application/json")	
-        };
+        final ArrayList<Header> headers = new ArrayList<Header>();
+        headers.add(new BasicHeader("Content-Type", "application/json"));
         
         context.checking(new Expectations() {{
         	exactly(2).of(webClient).execute(
@@ -225,6 +229,7 @@ public class HttpClientTest {
         this.client.post(new StatusUrl("http://imbo"), body, headers);
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testCanPutHttpResource() throws IOException, URISyntaxException {
         useMockWebClient();
@@ -246,15 +251,15 @@ public class HttpClientTest {
         this.client.put(new URI("http://imbo-project.org/"), file);
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testCanPutHttpResourceWithAnUrlClass() throws IOException, URISyntaxException {
         useMockWebClient();
         final ImboResponse response = new ImboResponse();
         final byte[] body = new byte[] { 1, 2, 3, 4, 5 };
         final File file = new File("misc/imbo-logo.png");
-        final Header[] headers = new Header[] {
-        	new BasicHeader("Content-Type", "image/jpg")
-        };
+        final ArrayList<Header> headers = new ArrayList<Header>();
+        headers.add(new BasicHeader("Content-Type", "image/png"));
         ByteArrayInputStream input = new ByteArrayInputStream(body);
         
         context.checking(new Expectations() {{
@@ -383,6 +388,7 @@ public class HttpClientTest {
         );
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testClientThrowsServerExceptionOnError() throws IOException {
     	useMockWebClient();
@@ -399,9 +405,8 @@ public class HttpClientTest {
             will(returnValue(response));
         }});
         
-        Header[] headers = new Header[] {
-        	new BasicHeader("X-Imbo-Client", "imboclient-java")
-        };
+        final ArrayList<Header> headers = new ArrayList<Header>();
+        headers.add(new BasicHeader("X-Imbo-Client", "imboclient-java"));
         
         this.client.setRequestHeaders(headers);
         this.client.get(new StatusUrl("http://imbo/"));

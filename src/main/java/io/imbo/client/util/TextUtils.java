@@ -11,6 +11,8 @@ package io.imbo.client.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import org.apache.http.message.BasicNameValuePair;
+
 /**
  * Various text utilities
  *
@@ -18,6 +20,29 @@ import java.net.URLEncoder;
  */
 public class TextUtils {
 
+    /**
+     * Join a set of query params with a given delimiter, optionally URL-encoded
+     *
+     * @param delimiter Which delimiter (character(s)) to use for separating tokens
+     * @param tokens Tokens to separate
+     * @return String, with the delimiter between each token
+     */
+    public static String join(CharSequence delimiter, Iterable<BasicNameValuePair> tokens, boolean urlEncode) {
+        StringBuilder sb = new StringBuilder();
+        boolean firstTime = true;
+        for (BasicNameValuePair queryParam : tokens) {
+            if (firstTime) {
+                firstTime = false;
+            } else {
+                sb.append(delimiter);
+            }
+            
+            sb.append(queryParam.getName() + "=" + (urlEncode ? TextUtils.urlEncode(queryParam.getValue()) : queryParam.getValue()));
+        }
+
+        return sb.toString();
+    }
+    
     /**
      * Join a set of tokens with a given delimiter
      *
@@ -28,12 +53,13 @@ public class TextUtils {
     public static String join(CharSequence delimiter, Iterable<String> tokens) {
         StringBuilder sb = new StringBuilder();
         boolean firstTime = true;
-        for (CharSequence value : tokens) {
+        for (String value : tokens) {
             if (firstTime) {
                 firstTime = false;
             } else {
                 sb.append(delimiter);
             }
+            
             sb.append(value);
         }
 

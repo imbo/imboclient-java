@@ -17,12 +17,13 @@ import io.imbo.client.ServerException;
 import io.imbo.client.Http.ImboResponse;
 import io.imbo.client.Http.Response;
 import io.imbo.client.Images.Image;
+import io.imbo.client.Images.ImagesResponse;
 import io.imbo.client.Images.Query;
 import io.imbo.client.Url.ImageUrl;
 import io.imbo.client.Url.ImagesUrl;
 import io.imbo.client.Url.MetadataUrl;
 import io.imbo.client.Url.StatusUrl;
-import io.imbo.client.Url.ImboUrlInterface;
+import io.imbo.client.Url.Url;
 import io.imbo.client.Url.UserUrl;
 
 import java.io.ByteArrayInputStream;
@@ -37,6 +38,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -121,7 +123,7 @@ public class ImboClientTest extends TestCase {
         final ImboResponse response = new ImboResponse();
 
         context.checking(new Expectations() {{
-            oneOf(httpClient).put(with(uriMatches(signedUrlPattern)), with(same(image)));
+            oneOf(httpClient).post(with(uriMatches(signedUrlPattern)), with(same(image)));
             will(returnValue(response));
         }});
 
@@ -137,7 +139,7 @@ public class ImboClientTest extends TestCase {
         final ImboResponse response = new ImboResponse();
         
         context.checking(new Expectations() {{
-            oneOf(httpClient).put(with(uriMatches(signedUrlPattern)), with(any(ByteArrayInputStream.class)));
+            oneOf(httpClient).post(with(uriMatches(signedUrlPattern)), with(any(ByteArrayInputStream.class)));
             will(returnValue(response));
         }});
         
@@ -176,7 +178,7 @@ public class ImboClientTest extends TestCase {
     @Test
     public void testReturnsResponseWhenAddingARemoteImage() throws URISyntaxException, IOException {
         final Response getResponse = getResponseMock();
-        final ImboResponse putResponse = new ImboResponse();
+        final ImboResponse postResponse = new ImboResponse();
         final URI imageUrl = new URI("http://example.com/image.jpg");
         final byte[] imgBytes = { 1, 2, 3, 4, 5 };
 
@@ -187,11 +189,11 @@ public class ImboClientTest extends TestCase {
             oneOf(getResponse).getRawBody();
             will(returnValue(imgBytes));
 
-            oneOf(httpClient).put(with(uriMatches(signedUrlPattern)), with(any(ByteArrayInputStream.class)));
-            will(returnValue(putResponse));
+            oneOf(httpClient).post(with(uriMatches(signedUrlPattern)), with(any(ByteArrayInputStream.class)));
+            will(returnValue(postResponse));
         }});
 
-        assertSame(putResponse, client.addImageFromUrl(imageUrl));
+        assertSame(postResponse, client.addImageFromUrl(imageUrl));
     }
     
     /**
@@ -211,7 +213,7 @@ public class ImboClientTest extends TestCase {
             oneOf(getResponse).getRawBody();
             will(returnValue(imgBytes));
 
-            oneOf(httpClient).put(with(uriMatches(signedUrlPattern)), with(any(ByteArrayInputStream.class)));
+            oneOf(httpClient).post(with(uriMatches(signedUrlPattern)), with(any(ByteArrayInputStream.class)));
             will(returnValue(putResponse));
         }});
         
@@ -242,13 +244,14 @@ public class ImboClientTest extends TestCase {
      * @throws IOException
      * @throws JSONException 
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testReturnsResponseAfterEditingMetadata() throws IOException, JSONException {
         final String metadata = "{\"foo\":\"bar\",\"bar\":\"foo\"}";
         
         final Response response = getResponseMock();
         context.checking(new Expectations() {{
-            oneOf(httpClient).post(with(uriMatches(signedUrlPattern)), with(equal(metadata)), (org.apache.http.Header[]) with(anything()));
+            oneOf(httpClient).post(with(uriMatches(signedUrlPattern)), with(equal(metadata)), (List<org.apache.http.Header>) with(anything()));
             will(returnValue(response));
         }});
 
@@ -261,13 +264,14 @@ public class ImboClientTest extends TestCase {
      * @throws IOException 
      * @throws JSONException 
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testReturnsResponseAfterReplacingMetadata() throws IOException, JSONException {
         final String metadata = "{\"foo\":\"bar\",\"bar\":\"foo\"}";
         
         final Response response = getResponseMock();
         context.checking(new Expectations() {{
-            oneOf(httpClient).put(with(uriMatches(signedUrlPattern)), with(equal(metadata)), (org.apache.http.Header[]) with(anything()));
+            oneOf(httpClient).put(with(uriMatches(signedUrlPattern)), with(equal(metadata)), (List<org.apache.http.Header>) with(anything()));
             will(returnValue(response));
         }});
 
@@ -303,7 +307,7 @@ public class ImboClientTest extends TestCase {
         final Response response = getResponseMock();
         
         context.checking(new Expectations() {{
-            oneOf(httpClient).get(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).get(with(any(Url.class)));
             will(returnValue(response));
             
             oneOf(response).getBody();
@@ -327,73 +331,11 @@ public class ImboClientTest extends TestCase {
         final Response response = getResponseMock();
 
         context.checking(new Expectations() {{
-            oneOf(httpClient).head(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).head(with(any(Url.class)));
             will(returnValue(response));
         }});
 
         assertSame(response, this.client.headImage(this.imageIdentifier));
-    }
-
-    /**
-     * The client must throw an exception when checking if an image exists using a local image that
-     * does not exist
-     */
-    @Test
-    public void testThrowsExceptionWhenCheckingIfAnImageExistsUsingALocalImageThatDoesNotExist() throws IOException {
-        exception.expect(FileNotFoundException.class);
-        exception.expectMessage("The system cannot find the file specified");
-        
-        File nonExistant = new File("non-existant.jpg");
-        this.client.imageExists(nonExistant);
-    }
-
-    /**
-     * The client must throw an exception when checking if an image exists using an empty local
-     * image
-     */
-    @Test
-    public void testThrowsExceptionWhenCheckingIfAnImageExistsUsingAnEmptyLocalImage() throws IOException {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("The specified file was empty");
-
-        File emptyImage = new File("misc/empty.jpg");
-        this.client.imageExists(emptyImage);
-    }
-
-    /**
-     * If the server responds with an error other than 404 the client must re-throw the exception
-     * 
-     * @throws IOException 
-     */
-    @Test
-    public void testThrowsExceptionWhenCheckingIfAnImageExistsAndTheServerRespondsWithAnErrorOtherThan404() throws IOException {
-        File image = new File("misc/imbo-logo.png");
-        
-        exception.expect(ServerException.class);
-        exception.expectMessage("Internal Server Error");
-        
-        context.checking(new Expectations() {{
-            oneOf(httpClient).head(with(any(ImboUrlInterface.class)));
-            will(throwException(new ServerException("Internal Server Error", 500)));
-        }});
-
-        this.client.imageExists(image);
-    }
-    
-    /**
-     * When checking if an image identifier exists on the server and it does not,
-     * the client must return false
-     * 
-     * @throws IOException 
-     */
-    @Test
-    public void testReturnsTrueWhenCheckingIfARemoteImageIdentifierExistsAndTheImageExistsBasedOnLocalFile() throws IOException {
-        context.checking(new Expectations() {{
-            oneOf(httpClient).head(with(any(ImboUrlInterface.class)));
-            will(throwException(new ServerException("Image does not exist", 404)));
-        }});
-
-        assertFalse(this.client.imageExists(new File("misc/imbo-logo.png")));
     }
 
     /**
@@ -405,11 +347,11 @@ public class ImboClientTest extends TestCase {
     @Test
     public void testReturnsFalseWhenCheckingIfARemoteImageIdentifierExistsAndTheImageDoesNotExist() throws IOException {
         context.checking(new Expectations() {{
-            oneOf(httpClient).head(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).head(with(any(Url.class)));
             will(throwException(new ServerException("Image does not exist", 404)));
         }});
 
-        assertFalse(this.client.imageExists(this.imageIdentifier));
+        assertFalse(this.client.imageIdentifierExists(this.imageIdentifier));
     }
 
     /**
@@ -423,11 +365,11 @@ public class ImboClientTest extends TestCase {
         final Response response = getResponseMock();
 
         context.checking(new Expectations() {{
-            oneOf(httpClient).head(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).head(with(any(Url.class)));
             will(returnValue(response));
         }});
 
-        assertTrue(this.client.imageExists(this.imageIdentifier));
+        assertTrue(this.client.imageIdentifierExists(this.imageIdentifier));
     }
 
     /**
@@ -441,11 +383,11 @@ public class ImboClientTest extends TestCase {
         exception.expectMessage("Internal Server Error");
         
         context.checking(new Expectations() {{
-            oneOf(httpClient).head(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).head(with(any(Url.class)));
             will(throwException(new ServerException("Internal Server Error", 500)));
         }});
 
-        this.client.imageExists(this.imageIdentifier);
+        this.client.imageIdentifierExists(this.imageIdentifier);
     }
 
     /**
@@ -636,7 +578,7 @@ public class ImboClientTest extends TestCase {
             oneOf(response).getBody();
             will(returnValue("{\"numImages\":42}"));
             
-            oneOf(httpClient).get(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).get(with(any(Url.class)));
             will(returnValue(response));
         }});
 
@@ -648,8 +590,9 @@ public class ImboClientTest extends TestCase {
      * 
      * @return String of JSON data
      */
-    private String getImagesResponse() {
-        return "[{\"size\":45826,\"publicKey\":\"christer\",\"imageIdentifier\":\"52116c74f6fba61bbc30c225d292d647\",\"extension\":\"png\",\"mime\":\"image\\/png\",\"added\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"updated\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"width\":380,\"height\":390,\"checksum\":\"52116c74f6fba61bbc30c225d292d647\"},{\"size\":10904,\"publicKey\":\"christer\",\"imageIdentifier\":\"3aae75c6085a7099114af8018e24c1cc\",\"extension\":\"png\",\"mime\":\"image\\/png\",\"added\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"updated\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"width\":210,\"height\":208,\"checksum\":\"3aae75c6085a7099114af8018e24c1cc\"},{\"size\":51424,\"publicKey\":\"christer\",\"imageIdentifier\":\"00f1e89ddfab8adb3ec018248bb96f5b\",\"extension\":\"jpg\",\"mime\":\"image\\/jpeg\",\"added\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"updated\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"width\":334,\"height\":500,\"checksum\":\"00f1e89ddfab8adb3ec018248bb96f5b\"},{\"size\":98457,\"publicKey\":\"christer\",\"imageIdentifier\":\"1ac50f402c1bf884483d8e42166edbbd\",\"extension\":\"jpg\",\"mime\":\"image\\/jpeg\",\"added\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"updated\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"width\":640,\"height\":480,\"checksum\":\"1ac50f402c1bf884483d8e42166edbbd\"},{\"size\":99899,\"publicKey\":\"christer\",\"imageIdentifier\":\"13e9bdd2b8f6b95d53ba5f4b66ecf2dc\",\"extension\":\"jpg\",\"mime\":\"image\\/jpeg\",\"added\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"updated\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"width\":640,\"height\":480,\"checksum\":\"13e9bdd2b8f6b95d53ba5f4b66ecf2dc\"}]";
+    private String getImagesResponse(int limit, int page) {
+        int returnedHits = Math.min(limit, 100);
+        return "{\"images\":[{\"size\":45826,\"publicKey\":\"christer\",\"imageIdentifier\":\"52116c74f6fba61bbc30c225d292d647\",\"extension\":\"png\",\"mime\":\"image\\/png\",\"added\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"updated\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"width\":380,\"height\":390,\"checksum\":\"52116c74f6fba61bbc30c225d292d647\"},{\"size\":10904,\"publicKey\":\"christer\",\"imageIdentifier\":\"3aae75c6085a7099114af8018e24c1cc\",\"extension\":\"png\",\"mime\":\"image\\/png\",\"added\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"updated\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"width\":210,\"height\":208,\"checksum\":\"3aae75c6085a7099114af8018e24c1cc\"},{\"size\":51424,\"publicKey\":\"christer\",\"imageIdentifier\":\"00f1e89ddfab8adb3ec018248bb96f5b\",\"extension\":\"jpg\",\"mime\":\"image\\/jpeg\",\"added\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"updated\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"width\":334,\"height\":500,\"checksum\":\"00f1e89ddfab8adb3ec018248bb96f5b\"},{\"size\":98457,\"publicKey\":\"christer\",\"imageIdentifier\":\"1ac50f402c1bf884483d8e42166edbbd\",\"extension\":\"jpg\",\"mime\":\"image\\/jpeg\",\"added\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"updated\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"width\":640,\"height\":480,\"checksum\":\"1ac50f402c1bf884483d8e42166edbbd\"},{\"size\":99899,\"publicKey\":\"christer\",\"imageIdentifier\":\"13e9bdd2b8f6b95d53ba5f4b66ecf2dc\",\"extension\":\"jpg\",\"mime\":\"image\\/jpeg\",\"added\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"updated\":\"Thu, 27 Sep 2012 10:12:34 GMT\",\"width\":640,\"height\":480,\"checksum\":\"13e9bdd2b8f6b95d53ba5f4b66ecf2dc\"}],\"search\":{\"hits\":100,\"count\":" + returnedHits + ",\"page\":" + page + ",\"limit\":" + limit + "}}";
     }
     
     /**
@@ -663,20 +606,19 @@ public class ImboClientTest extends TestCase {
         final Response response = getResponseMock();
         context.checking(new Expectations() {{
             oneOf(response).getBody();
-            will(returnValue(getImagesResponse()));
+            will(returnValue(getImagesResponse(5, 1)));
             
             oneOf(httpClient).get(with(any(URI.class)));
             will(returnValue(response));
         }});
 
-        Image[] images = this.client.getImages();
+        ImagesResponse imagesResponse = this.client.getImages();
         
-        for (int i = 0; i < images.length; i++) {
-            assertThat(
-                images[i],
-                instanceOf(Image.class)
-            );
-        }
+        assertEquals(5, imagesResponse.getHits());
+        assertEquals(100, imagesResponse.getTotalHits());
+        assertEquals(5, imagesResponse.getLimit());
+        assertEquals(1, imagesResponse.getPageNumber());
+        assertEquals(5, imagesResponse.getImages().size());
     }
 
     /**
@@ -688,32 +630,24 @@ public class ImboClientTest extends TestCase {
     @Test
     public void testCanFetchImagesUsingAQueryObject() throws IOException, JSONException {
         final Response response = getResponseMock();
-        final Query query = getQueryMock();
-        
-        final HashMap<String, String> params = new HashMap<String, String>();
-        params.put("page", "3");
-        params.put("limit", "5");
-        params.put("query", "{\"foo\":\"bar\"}");
-        
+        final Query query = new Query();
+        query.limit(5);
+        query.page(3);
         
         context.checking(new Expectations() {{
-            oneOf(query).toHashMap();
-            will(returnValue(params));
-            
-            oneOf(httpClient).get(with(uriMatches(".*?limit=5&page=3&query=%7B%22foo%22%3A%22bar%22%7D.*")));
+            oneOf(httpClient).get(with(uriMatches(".*?limit=5&page=3.*")));
             will(returnValue(response));
             
             oneOf(response).getBody();
-            will(returnValue(getImagesResponse()));
+            will(returnValue(getImagesResponse(query.limit(), query.page())));
         }});
         
-        Image[] images = this.client.getImages(query);
-        for (int i = 0; i < images.length; i++) {
-            assertThat(
-                images[i],
-                instanceOf(Image.class)
-            );
-        }
+        ImagesResponse imagesResponse = this.client.getImages(query);
+        assertEquals(5, imagesResponse.getHits());
+        assertEquals(100, imagesResponse.getTotalHits());
+        assertEquals(query.limit(), imagesResponse.getLimit());
+        assertEquals(query.page(), imagesResponse.getPageNumber());
+        assertEquals(5, imagesResponse.getImages().size());
     }
 
     /**
@@ -815,7 +749,7 @@ public class ImboClientTest extends TestCase {
             oneOf(response).getHeaders();
             will(returnValue(headers));
 
-            oneOf(httpClient).head(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).head(with(any(Url.class)));
             will(returnValue(response));
         }});
         
@@ -833,20 +767,20 @@ public class ImboClientTest extends TestCase {
      * @throws IOException 
      */
     @Test
-    public void testCanGenerateAnImageIdentifierBasedOnAValidLocalImage() throws IOException {
+    public void testCanGenerateChecksumBasedOnAValidLocalImage() throws IOException {
         assertEquals(
             "f9137fdccf9694912f3331e1f96ea72f",
-            this.client.getImageIdentifier(new File("misc/imbo-logo.png"))
+            this.client.getImageChecksum(new File("misc/imbo-logo.png"))
         );
         
         assertEquals(
             "0f88d0234601c80a1ba634e0630fb11a",
-            this.client.getImageIdentifier(new File("misc/imbo-logo.jpg"))
+            this.client.getImageChecksum(new File("misc/imbo-logo.jpg"))
         );
         
         assertEquals(
             "005004a9cca74dff1a7b54599abb2618",
-            this.client.getImageIdentifier(new File("misc/imbo-logo.gif"))
+            this.client.getImageChecksum(new File("misc/imbo-logo.gif"))
         );
     }
 
@@ -855,11 +789,11 @@ public class ImboClientTest extends TestCase {
      * non-existing local image
      */
     @Test
-    public void testThrowsExceptionWhenTryingToGenerateImageIdentifierBasedOnALocalImageThatDoesNotExist() throws IOException {
+    public void testThrowsExceptionWhenTryingToGenerateChecksumBasedOnALocalImageThatDoesNotExist() throws IOException {
         exception.expect(FileNotFoundException.class);
         exception.expectMessage("The system cannot find the file specified");
         
-        this.client.getImageIdentifier(new File("foobar"));
+        this.client.getImageChecksum(new File("foobar"));
     }
 
     /**
@@ -869,33 +803,12 @@ public class ImboClientTest extends TestCase {
      * @throws IOException 
      */
     @Test
-    public void testThrowsExceptionWhenTryingToGenerateImageIdentifierBasedOnAnEmptyLocalImage() throws IllegalArgumentException, IOException {
+    public void testThrowsExceptionWhenTryingToGenerateChecksumBasedOnAnEmptyLocalImage() throws IllegalArgumentException, IOException {
     	exception.expect(IllegalArgumentException.class);
         exception.expectMessage("The specified file was empty");
 
         File emptyImage = new File("misc/empty.jpg");
-        this.client.getImageIdentifier(emptyImage);
-    }
-
-    /**
-     * The client must be able to generate an image identifier based on a byte array
-     */
-    @Test
-    public void testCanGenerateAnImageIdentifierBasedOnByteArray() {
-        assertEquals(
-            "f9137fdccf9694912f3331e1f96ea72f",
-            this.client.getImageIdentifier(readFile(new File("misc/imbo-logo.png")))
-        );
-        
-        assertEquals(
-            "0f88d0234601c80a1ba634e0630fb11a",
-            this.client.getImageIdentifier(readFile(new File("misc/imbo-logo.jpg")))
-        );
-        
-        assertEquals(
-            "005004a9cca74dff1a7b54599abb2618",
-            this.client.getImageIdentifier(readFile(new File("misc/imbo-logo.gif")))
-        );
+        this.client.getImageChecksum(emptyImage);
     }
 
     /**
@@ -970,7 +883,7 @@ public class ImboClientTest extends TestCase {
             oneOf(response).getBody();
             will(returnValue("{\"date\":\"some date\",\"database\":true,\"storage\":true}"));
         
-            oneOf(httpClient).get(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).get(with(any(Url.class)));
             will(returnValue(response));
         }});
 
@@ -999,7 +912,7 @@ public class ImboClientTest extends TestCase {
             oneOf(response).getBody();
             will(returnValue("{\"date\":\"some date\",\"database\":true,\"storage\":false}"));
         
-            oneOf(httpClient).get(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).get(with(any(Url.class)));
             will(throwException(exception));
         }});
 
@@ -1023,7 +936,7 @@ public class ImboClientTest extends TestCase {
         exception.expectMessage("Bad Request");
         
         context.checking(new Expectations() {{
-            oneOf(httpClient).get(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).get(with(any(Url.class)));
             will(throwException(new ServerException("Bad Request", 400)));
         }});
 
@@ -1043,7 +956,7 @@ public class ImboClientTest extends TestCase {
         exception.expectMessage("An error occured");
         
         context.checking(new Expectations() {{
-            oneOf(httpClient).get(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).get(with(any(Url.class)));
             will(throwException(new RuntimeException("An error occured")));
         }});
         
@@ -1108,7 +1021,7 @@ public class ImboClientTest extends TestCase {
         }});
         
         context.checking(new Expectations() {{
-            oneOf(httpClient).get(with(any(ImboUrlInterface.class)));
+            oneOf(httpClient).get(with(any(Url.class)));
             will(returnValue(response));
         }});
         
@@ -1126,10 +1039,6 @@ public class ImboClientTest extends TestCase {
 
     protected Response getResponseMock() {
         return context.mock(Response.class, "response" + (++mockCount));
-    }
-    
-    protected Query getQueryMock() {
-        return context.mock(Query.class, "query" + (++mockCount));
     }
     
     protected byte[] readFile(File input) {

@@ -127,7 +127,7 @@ public class ImboHttpClient implements HttpClient {
         post.setEntity(new StringEntity(data));
         
         if (headers != null) {
-            post.setHeaders((Header[]) headers.toArray());
+            post.setHeaders(headers.toArray(new Header[0]));
         }
         
         return this.request(post);
@@ -150,7 +150,7 @@ public class ImboHttpClient implements HttpClient {
         post.setEntity(new ByteArrayEntity(data));
         
         if (headers != null) {
-            post.setHeaders((Header[]) headers.toArray());
+            post.setHeaders(headers.toArray(new Header[0]));
         }
         
         return this.request(post);
@@ -170,12 +170,14 @@ public class ImboHttpClient implements HttpClient {
 		FileInputStream fileStream = new FileInputStream(file);
 		
 		boolean contentTypeSpecified = false;
-		Iterator<Header> iterator = headers.iterator();
-		while (iterator.hasNext()) {
-			if (iterator.next().getName().equals("Content-Type")) {
-				contentTypeSpecified = true;
-				break;
-			}
+		if (headers != null) {
+		    Iterator<Header> iterator = headers.iterator();
+	        while (iterator.hasNext()) {
+	            if (iterator.next().getName().equals("Content-Type")) {
+	                contentTypeSpecified = true;
+	                break;
+	            }
+	        }
 		}
 		
 		if (contentTypeSpecified == false) {
@@ -246,7 +248,7 @@ public class ImboHttpClient implements HttpClient {
         put.setEntity(new StringEntity(data));
         
         if (headers != null) {
-        	put.setHeaders((Header[]) headers.toArray());
+            put.setHeaders(headers.toArray(new Header[0]));
         }
         
         return this.request(put);
@@ -269,7 +271,7 @@ public class ImboHttpClient implements HttpClient {
         put.setEntity(new ByteArrayEntity(data));
         
         if (headers != null) {
-            put.setHeaders((Header[]) headers.toArray());
+            put.setHeaders(headers.toArray(new Header[0]));
         }
         
         return this.request(put);

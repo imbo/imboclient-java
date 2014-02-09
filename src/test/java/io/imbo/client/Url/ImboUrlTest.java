@@ -70,7 +70,7 @@ public class ImboUrlTest {
      */
     @Test
     public void testCanSetAndGetAnAccessTokenInstance() {
-        final AccessToken accessToken = context.mock(AccessToken.class);
+        final AccessToken accessToken = new AccessToken();
         
         assertSame(url, url.setAccessToken(accessToken));
         assertSame(accessToken, url.getAccessToken());

@@ -12,6 +12,7 @@ import io.imbo.client.ImboClient;
 import io.imbo.client.ServerException;
 import io.imbo.client.Http.Response;
 import io.imbo.client.Images.Image;
+import io.imbo.client.Images.ImagesResponse;
 import io.imbo.client.Images.Query;
 import io.imbo.client.Url.ImageUrl;
 import io.imbo.client.util.OrderedRunner;
@@ -50,7 +51,7 @@ public class IntegrationTest extends TestCase {
 	private static String publicKey = "";
 	private static String privateKey = "";
 	private static File logo;
-	private static String logoIdentifier = "f9137fdccf9694912f3331e1f96ea72f";
+	private static String logoChecksum = "f9137fdccf9694912f3331e1f96ea72f";
 	private static String now = System.currentTimeMillis() + "";
 	private static String resizedIdentifier = "";
 
@@ -99,7 +100,7 @@ public class IntegrationTest extends TestCase {
     public void testDeleteImageIfImageExistsWithoutErrors() throws IOException {
     	boolean exists = false;
     	try {
-			exists = client.imageExists(logo);
+			exists = client.imageIdentifierExists(logoChecksum);
 		} catch (IllegalArgumentException e) {
 			fail("IllegalArgumentException: " + e.getMessage());
 		} catch (IOException e) {
@@ -107,7 +108,7 @@ public class IntegrationTest extends TestCase {
 		}
 		
 		if (exists) {
-			String identifier = client.getImageIdentifier(logo);
+		    String identifier = client.getImageChecksum(logo);
 			
 			try {
 				client.deleteImage(identifier);
@@ -124,7 +125,7 @@ public class IntegrationTest extends TestCase {
     	
     	try {
 			Response res = client.addImage(logo);
-			assertEquals(logoIdentifier, res.getImageIdentifier());
+			assertEquals(logoChecksum, res.getImageIdentifier());
 		} catch (ServerException e) {
 			fail("ServerException: " + e.getMessage());
 		} catch (IOException e) {
@@ -140,7 +141,7 @@ public class IntegrationTest extends TestCase {
     	metadata.put("time", now);
     	
     	try {
-			Response res = client.replaceMetadata(logoIdentifier, metadata);
+			Response res = client.replaceMetadata(logoChecksum, metadata);
 			assertTrue(res.isSuccess());
 		} catch(ServerException e) {
 			fail("ServerException: " + e.getMessage());
@@ -153,7 +154,7 @@ public class IntegrationTest extends TestCase {
     @Order(order=4)
     public void testGetMetadataForImage() {
     	try {
-			JSONObject metadata = client.getMetadata(logoIdentifier);
+			JSONObject metadata = client.getMetadata(logoChecksum);
 			assertEquals(now, metadata.getString("time"));
 			assertEquals("bar", metadata.getString("foo"));
 		} catch (JSONException e) {
@@ -170,7 +171,7 @@ public class IntegrationTest extends TestCase {
     	metadata.put("edited", true);
     	
     	try {
-			Response res = client.editMetadata(logoIdentifier, metadata);
+			Response res = client.editMetadata(logoChecksum, metadata);
 			assertTrue(res.isSuccess());
 		} catch(ServerException e) {
 			fail("ServerException: " + e.getMessage());
@@ -183,7 +184,7 @@ public class IntegrationTest extends TestCase {
     @Order(order=6)
     public void testGetEditedMetadataForImage() {
     	try {
-			JSONObject metadata = client.getMetadata(logoIdentifier);
+			JSONObject metadata = client.getMetadata(logoChecksum);
 			assertEquals(now, metadata.getString("time"));
 			assertEquals("bar", metadata.getString("foo"));
 			assertTrue(metadata.getBoolean("edited"));
@@ -211,8 +212,8 @@ public class IntegrationTest extends TestCase {
     @Order(order=8)
     public void testGetImages() {
     	try {
-			Image[] images = client.getImages();
-			assertTrue(images.length > 0);
+			ImagesResponse response = client.getImages();
+			assertTrue(response.getHits() > 0);
 		} catch (JSONException e) {
 			fail("JSONException: " + e.getMessage());
 		} catch (IOException e) {
@@ -228,16 +229,16 @@ public class IntegrationTest extends TestCase {
     	
     	Query query = new Query();
     	query.limit(1);
-    	query.metadataQuery(metadata);
     	
     	try {
-			Image[] images = client.getImages(query);
-			assertEquals(1, images.length);
-			assertEquals(logoIdentifier, images[0].getIdentifier());
-			assertEquals(256, images[0].getHeight());
-			assertEquals(256, images[0].getWidth());
-			assertEquals("image/png", images[0].getMimeType());
-			assertEquals(2078, images[0].getSize());
+			ImagesResponse response = client.getImages(query);
+			assertEquals(1, response.getHits());
+			assertEquals(1, response.getImages().size());
+			assertEquals(logoChecksum, response.getImages().get(0).getChecksum());
+			assertEquals(256, response.getImages().get(0).getHeight());
+			assertEquals(256, response.getImages().get(0).getWidth());
+			assertEquals("image/png", response.getImages().get(0).getMimeType());
+			assertEquals(2078, response.getImages().get(0).getSize());
 		} catch (JSONException e) {
 			fail("JSONException: " + e.getMessage());
 		} catch (IOException e) {
@@ -249,7 +250,7 @@ public class IntegrationTest extends TestCase {
     @Order(order=10)
     public void testDeleteMetadataForImage() {
     	try {
-			Response res = client.deleteMetadata(logoIdentifier);
+			Response res = client.deleteMetadata(logoChecksum);
 			assertTrue(res.isSuccess());
 		} catch (IOException e) {
 			fail("IOException: " + e.getMessage());
@@ -260,7 +261,7 @@ public class IntegrationTest extends TestCase {
     @Order(order=11)
     public void testGetDeletedMetadataForImage() {
     	try {
-			JSONObject metadata = client.getMetadata(logoIdentifier);
+			JSONObject metadata = client.getMetadata(logoChecksum);
 			assertEquals(0, metadata.length());
 		} catch (JSONException e) {
 			fail("JSONException: " + e.getMessage());
@@ -272,14 +273,16 @@ public class IntegrationTest extends TestCase {
     @Test
     @Order(order=12)
     public void testAddTransformedImageFromUrl() {
-    	ImageUrl url = (ImageUrl) client.getImageUrl(logoIdentifier).resize(128, 128);
+    	ImageUrl url = (ImageUrl) client.getImageUrl(logoChecksum).resize(128, 128);
     	assertFalse(url == null);
+    	
     	try {
 			Response res = client.addImageFromUrl(url);
 			assertTrue(res.isSuccess());
 			
 			resizedIdentifier = res.getImageIdentifier();
-			assertFalse(resizedIdentifier == null || resizedIdentifier.isEmpty());
+			assertFalse(resizedIdentifier == null);
+			assertFalse(resizedIdentifier.isEmpty());
 		} catch (IOException e) {
 			fail("IOException: " + e.getMessage());
 			e.printStackTrace();
@@ -337,13 +340,13 @@ public class IntegrationTest extends TestCase {
     
     protected void deleteLogoFromServer() {
     	try {
-			client.deleteImage(logoIdentifier);
+			client.deleteImage(logoChecksum);
 		} catch (IOException e) {}
     }
     
     protected void cleanup() {
     	try {
-			client.deleteImage(logoIdentifier);
+			client.deleteImage(logoChecksum);
 			client.deleteImage(resizedIdentifier);
 		} catch (Exception e) {}
     }

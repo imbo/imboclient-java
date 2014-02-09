@@ -14,6 +14,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import org.apache.http.message.BasicNameValuePair;
+
 /**
  * Abstract Imbo URL for other implementations to extend
  *
@@ -44,7 +46,7 @@ public abstract class ImboUrl implements Url {
     /**
      * Query parameters for the URL
      */
-    private ArrayList<String> queryParams = new ArrayList<String>();
+    private ArrayList<BasicNameValuePair> queryParams = new ArrayList<BasicNameValuePair>();
 
     /**
      * Class constructor
@@ -66,7 +68,7 @@ public abstract class ImboUrl implements Url {
      */
     public String getUrl() {
         String url = getResourceUrl();
-        String queryString = getQueryString();
+        String queryString = getRawQueryString();
 
         if (!queryString.isEmpty()) {
             url += "?" + queryString;
@@ -75,10 +77,18 @@ public abstract class ImboUrl implements Url {
         if (publicKey == null || privateKey == null) {
             return url;
         }
-
+        
         String token = getAccessToken().generateToken(url, privateKey);
-
-        return url + (queryParams.isEmpty() ? "?" : "&") + "accessToken=" + token;
+        String encodedQueryString = getQueryString();
+        
+        String fullUrl = getResourceUrl();
+        if (!encodedQueryString.isEmpty()) {
+            fullUrl += "?" + encodedQueryString;
+        }
+        
+        fullUrl += (queryParams.isEmpty() ? "?" : "&") + "accessToken=" + token;
+        
+        return fullUrl;
     }
 
     /**
@@ -124,7 +134,7 @@ public abstract class ImboUrl implements Url {
      * @return URL with the query added
      */
     public Url addQueryParam(String key, String value) {
-        queryParams.add(key + "=" + TextUtils.urlEncode(value));
+        queryParams.add(new BasicNameValuePair(key, value));
 
         return this;
     }
@@ -169,14 +179,35 @@ public abstract class ImboUrl implements Url {
     /**
      * Retrieves the query string for this URL
      *
+     * @param urlEncode Whether to URL-encode the values or not
      * @return Query string, as a String
      */
-    private String getQueryString() {
+    private String getQueryString(boolean urlEncode) {
         if (queryParams.isEmpty()) {
             return "";
         }
 
-        return TextUtils.join("&", queryParams);
+        return TextUtils.join("&", queryParams, urlEncode);
+    }
+    
+    /**
+     * Retrieves the query string for this URL
+     *
+     * @param urlEncode Whether to URL-encode the values or not
+     * @return Query string, as a String
+     */
+    private String getQueryString() {
+        return getQueryString(true);
+    }
+    
+    /**
+     * Retrieves the query string for this URL
+     *
+     * @param urlEncode Whether to URL-encode the values or not
+     * @return Query string, as a String
+     */
+    private String getRawQueryString() {
+        return getQueryString(false);
     }
 
     /**

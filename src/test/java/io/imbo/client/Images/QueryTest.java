@@ -12,13 +12,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import io.imbo.client.Images.Query;
 
 import java.util.Date;
 import java.util.HashMap;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,14 +65,6 @@ public class QueryTest {
     }
 
     /**
-     * By default, no meta data query should be set
-     */
-    @Test
-    public void testSetsAnEmptyDefaultMetadataQuery() {
-        assertNull(query.metadataQuery());
-    }
-
-    /**
      * By default, no "from" date should be set
      */
     @Test
@@ -118,18 +108,6 @@ public class QueryTest {
     }
 
     /**
-     * The query instance must be able to set and get a meta data query
-     *
-     * @throws JSONException
-     */
-    @Test
-    public void testCanSetAndGetAMetadataQuery() throws JSONException {
-        JSONObject value = new JSONObject().put("category", "some category");
-        assertEquals(query, query.metadataQuery(value));
-        assertEquals(value, query.metadataQuery());
-    }
-
-    /**
      * The query instance must be able to set and get the "from" date
      */
     @Test
@@ -158,24 +136,17 @@ public class QueryTest {
     @Test
     public void testCanConvertToHashMapWithValues() throws JSONException {
         Date from = new Date();
+        Date to = new Date();
+        
     	query.from(from);
-    	
     	query.limit(5);
-    	
-    	JSONObject metadataQuery = new JSONObject();
-    	metadataQuery.put("foo", "bar");
-    	query.metadataQuery(metadataQuery);
-    	
     	query.page(3);
     	query.returnMetadata(true);
-    	
-    	Date to = new Date();
         query.to(to);
         
         HashMap<String, String> map = query.toHashMap();
         assertEquals(Long.toString(from.getTime()), map.get("from"));
         assertEquals("5", map.get("limit"));
-        assertEquals("{\"foo\":\"bar\"}", map.get("query"));
         assertEquals("3", map.get("page"));
         assertEquals("1", map.get("metadata"));
         assertEquals(Long.toString(to.getTime()), map.get("to"));
